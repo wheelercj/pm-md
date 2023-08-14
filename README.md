@@ -4,7 +4,7 @@ Convert a Postman collection to markdown documentation.
 
 [sample result](samples/calendar%20API%20v1.md)
 
-The results look best when there is an example saved for each endpoint.
+The results look best when there is an example saved for each endpoint. After clicking "Send" in Postman, you can click "Save as Example" to save an example.
 
 ## install
 
