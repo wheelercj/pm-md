@@ -1,0 +1,78 @@
+# calendar API v1
+
+----------------------------------------
+
+## get all accounts
+
+GET `/v1/account/all`
+
+### sample response (status: 200 OK)
+
+```json
+[
+    {
+        "_id": "64d95ea1a74725d232891e29",
+        "email": "alksdfuie@mail.com",
+        "hashedPassword": "$2b$10$l/DUytcwyH5fgw7uTbl0OuGbXcFst4Yqdu7Ueh73GhdQYBnkAkiCC",
+        "scheduledAppointmentCount": 0,
+        "editedAppointmentCount": 0,
+        "canceledAppointmentCount": 0,
+        "createdAt": "2023-08-13T22:52:17.292Z",
+        "activeAppointments": [],
+        "__v": 0
+    }
+]
+```
+
+----------------------------------------
+
+## create account
+
+POST `/v1/account/register`
+
+### sample response (status: 201 Created)
+
+```json
+{
+    "email": "alksdfuie@mail.com"
+}
+```
+
+----------------------------------------
+
+## log in
+
+POST `/v1/account/login`
+
+### sample response (status: 200 OK)
+
+```json
+{
+    "email": "alksdfuie@mail.com"
+}
+```
+
+----------------------------------------
+
+## edit account
+
+PUT `/v1/account`
+
+### sample response (status: 200 OK)
+
+```html
+Update successful
+```
+
+----------------------------------------
+
+## delete account
+
+DELETE `/v1/account`
+
+### sample response (status: 200 OK)
+
+```html
+Account deleted
+```
+
