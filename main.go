@@ -46,10 +46,8 @@ func main() {
 		"join": func(elems []string, sep string) string {
 			return strings.Join(elems, sep)
 		},
-		"allowJson": func(s string) any {
-			s = strings.TrimSpace(s)
-			if (strings.HasPrefix(s, "{") && strings.HasSuffix(s, "}")) ||
-				(strings.HasPrefix(s, "[") && strings.HasSuffix(s, "]")) {
+		"allowJsonOrPlaintext": func(s string) any {
+			if json.Valid([]byte(s)) {
 				return template.HTML(s)
 			}
 			return s

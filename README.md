@@ -6,7 +6,7 @@ Convert a Postman collection to markdown documentation.
 
 If you install from source, the resulting markdown file's format is easy to customize by editing `collection.tmpl` using the types defined in `types.go` and the `template.FuncMap` defined in `main.go`. See the links under "developer resources" below for more details about templates.
 
-The results look best when there is an example saved for each endpoint. After clicking "Send" in Postman, you can click "Save as Example" to save an example. Examples are inserted into the markdown file without any escaping, so **only use this app on JSON files that you trust**.
+The results look best when there is an example saved for each endpoint. After clicking "Send" in Postman, you can click "Save as Example" to save an example.
 
 ## install
 

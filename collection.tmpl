@@ -9,12 +9,12 @@
 ### sample request body
 
 ```{{ .Request.Body.Options.Raw.Language }}
-{{ allowJson .Request.Body.Raw }}
+{{ allowJsonOrPlaintext .Request.Body.Raw }}
 ```
 {{ end }}{{ range .Responses }}
 ### sample response (status: {{ .Code }} {{ .Status }})
 
 ```{{ .Language }}
-{{ allowJson .Body }}
+{{ allowJsonOrPlaintext .Body }}
 ```
 {{ end }}{{ end }}
