@@ -12,7 +12,7 @@ The results look best when there is an example saved for each endpoint. After cl
 
 ### Windows
 
-1. [Click here to download](https://github.com/wheelercj/pm-md/releases/download/v0.0.1/pm-md.zip).
+1. [Click here to download](https://github.com/wheelercj/pm-md/releases/download/v0.0.2/pm-md.zip).
 2. Unzip the file.
 3. In Postman, export a collection as a v2.1.0 collection.
 4. Run the app in a terminal with `pm-md "json file path here"`. The terminal's working directory must be where pm-md.exe is.
