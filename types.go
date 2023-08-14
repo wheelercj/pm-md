@@ -1,22 +1,25 @@
 package main
 
-type Request struct {
-	Method string `json:"method"`
-	Header []any  `json:"header"`
-	Body   struct {
-		Mode    string `json:"mode"`
-		Raw     string `json:"raw"`
-		Options struct {
-			Raw struct {
-				Language string `json:"language"`
-			} `json:"raw"`
-		} `json:"options"`
-	} `json:"body"`
-	Url struct {
-		Raw  string   `json:"raw"`
-		Host []string `json:"host"`
-		Path []string `json:"path"`
-	} `json:"url"`
+type Collection struct {
+	Info struct {
+		PostmanId  string `json:"_postman_id"`
+		Name       string `json:"name"`
+		Schema     string `json:"schema"`
+		ExporterId string `json:"_exporter_id"`
+	} `json:"info"`
+	Routes Routes `json:"item"`
+	Events []struct {
+		Listen string `json:"listen"`
+		Script struct {
+			Type string `json:"type"`
+			Exec []string
+		} `json:"script"`
+	} `json:"event"`
+	Variables []struct {
+		Key   string `json:"key"`
+		Value string `json:"value"`
+		Type  string `json:"type"`
+	} `json:"variable"`
 }
 
 type Routes []struct {
@@ -40,24 +43,21 @@ type Routes []struct {
 	} `json:"response"`
 }
 
-type Collection struct {
-	Info struct {
-		PostmanId  string `json:"_postman_id"`
-		Name       string `json:"name"`
-		Schema     string `json:"schema"`
-		ExporterId string `json:"_exporter_id"`
-	} `json:"info"`
-	Routes Routes `json:"item"`
-	Events []struct {
-		Listen string `json:"listen"`
-		Script struct {
-			Type string `json:"type"`
-			Exec []string
-		} `json:"script"`
-	} `json:"event"`
-	Variables []struct {
-		Key   string `json:"key"`
-		Value string `json:"value"`
-		Type  string `json:"type"`
-	} `json:"variable"`
+type Request struct {
+	Method string `json:"method"`
+	Header []any  `json:"header"`
+	Body   struct {
+		Mode    string `json:"mode"`
+		Raw     string `json:"raw"`
+		Options struct {
+			Raw struct {
+				Language string `json:"language"`
+			} `json:"raw"`
+		} `json:"options"`
+	} `json:"body"`
+	Url struct {
+		Raw  string   `json:"raw"`
+		Host []string `json:"host"`
+		Path []string `json:"path"`
+	} `json:"url"`
 }
