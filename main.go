@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bytes"
+	_ "embed"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -12,6 +12,9 @@ import (
 	"regexp"
 	"strings"
 )
+
+//go:embed collection.tmpl
+var tmplStr string
 
 func main() {
 	flag.Parse()
@@ -58,7 +61,7 @@ func main() {
 	}
 
 	tmplFileName := "collection.tmpl"
-	tmpl, err := template.New(tmplFileName).Funcs(funcMap).ParseFiles(tmplFileName)
+	tmpl, err := template.New(tmplFileName).Funcs(funcMap).Parse(tmplStr)
 	if err != nil {
 		panic(err)
 	}
@@ -67,6 +70,7 @@ func main() {
 		panic(err)
 	}
 
+	fmt.Println("Created", mdFileName)
 }
 
 // If the collection's first route has a version number like `/v1/something`, then ` v1`
@@ -80,23 +84,4 @@ func getVersionedCollectionName(baseCollectionName string, routes Routes) string
 		}
 	}
 	return baseCollectionName
-}
-
-func toMarkdown(collectionName string, routes Routes) []byte {
-	var mdBuffer bytes.Buffer
-	mdBuffer.WriteString("# " + collectionName + "\n\n")
-	for _, route := range routes {
-		mdBuffer.WriteString("----------------------------------------\n\n## ")
-		mdBuffer.WriteString(route.Name + "\n\n")
-		url := "/" + strings.Join(route.Request.Url.Path, "/")
-		mdBuffer.WriteString(route.Request.Method + " `" + url + "`\n\n")
-		for _, response := range route.Responses {
-			mdBuffer.WriteString("### sample response (status: ")
-			mdBuffer.WriteString(fmt.Sprint(response.Code) + " ")
-			mdBuffer.WriteString(response.Status + ")\n\n```")
-			mdBuffer.WriteString(response.Language + "\n" + response.Body)
-			mdBuffer.WriteString("\n```\n\n")
-		}
-	}
-	return mdBuffer.Bytes()
 }

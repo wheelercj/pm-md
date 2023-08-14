@@ -12,7 +12,7 @@ The results look best when there is an example saved for each endpoint. After cl
 
 ### Windows
 
-1. [Click here to download](https://github.com/wheelercj/postman-to-markdown/releases/download/v0.0.1/pm-md.zip).
+1. [Click here to download](https://github.com/wheelercj/pm-md/releases/download/v0.0.1/pm-md.zip).
 2. Unzip the file.
 3. In Postman, export a collection as a v2.1.0 collection.
 4. Run the app in a terminal with `pm-md "json file path here"`. The terminal's working directory must be where pm-md.exe is.
@@ -21,13 +21,14 @@ If you will use this app often, you might want to [create a custom terminal comm
 
 ### Mac, Linux, and Windows (install from source)
 
-These steps require [Git](https://git-scm.com/) and [Go](https://go.dev/) to be installed.
+These steps require [Go](https://go.dev/) to be installed.
 
 1. In Postman, export a collection as a v2.1.0 collection.
-2. In a terminal, run `git clone https://github.com/wheelercj/postman-to-markdown.git` where you want this app's folder to appear.
-3. `cd` into the new folder.
-4. Use `go build` to create an executable file.
-5. Run the app with `./postman-to-markdown "json file path here"`. You can rename the executable file from `postman-to-markdown` to something shorter to make this easier if you want to.
+2. Choose one of the source code download options [here](https://github.com/wheelercj/pm-md/releases) (or `git clone`).
+3. Unzip the folder.
+4. Open a terminal in the new folder.
+5. Run `go build` to create an executable file.
+6. Run the app with `./pm-md "json file path here"`.
 
 If you will use this app often, you might want to [install the app](https://go.dev/doc/tutorial/compile-install).
 
@@ -35,6 +36,7 @@ If you will use this app often, you might want to [install the app](https://go.d
 
 Here are some resources that were helpful when creating this app.
 
-* [JSON and Go -- The Go Blog](https://go.dev/blog/json)
 * [the template package -- Go's standard library](https://pkg.go.dev/text/template)
 * [How To Use Templates in Go -- DigitalOcean](https://www.digitalocean.com/community/tutorials/how-to-use-templates-in-go)
+* [JSON and Go -- The Go Blog](https://go.dev/blog/json)
+* [the embed package -- Go's standard library](https://pkg.go.dev/embed)

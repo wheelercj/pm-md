@@ -1,3 +1,3 @@
-module github.com/wheelercj/postman-to-markdown
+module github.com/wheelercj/pm-md
 
 go 1.21.0
