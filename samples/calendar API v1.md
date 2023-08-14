@@ -30,6 +30,15 @@ GET `/v1/account/all`
 
 POST `/v1/account/register`
 
+### sample request body
+
+```json
+{
+    "email": "alksdfuie@mail.com",
+    "password": "so8vu3os8srl3jmlsf"
+}
+```
+
 ### sample response (status: 201 Created)
 
 ```json
@@ -43,6 +52,15 @@ POST `/v1/account/register`
 ## log in
 
 POST `/v1/account/login`
+
+### sample request body
+
+```json
+{
+    "email": "alksdfuie@mail.com",
+    "password": "so8vu3os8srl3jmlsf"
+}
+```
 
 ### sample response (status: 200 OK)
 
@@ -58,6 +76,17 @@ POST `/v1/account/login`
 
 PUT `/v1/account`
 
+### sample request body
+
+```json
+{
+    "email": "alksdfuie@mail.com",
+    "password": "so8vu3os8srl3jmlsf",
+    "newEmail": "alksdfuie@mail.com",
+    "newPassword": "bfls83uxlf3lajbla"
+}
+```
+
 ### sample response (status: 200 OK)
 
 ```html
@@ -69,6 +98,15 @@ Update successful
 ## delete account
 
 DELETE `/v1/account`
+
+### sample request body
+
+```json
+{
+    "email": "alksdfuie@mail.com",
+    "password": "bfls83uxlf3lajbla"
+}
+```
 
 ### sample response (status: 200 OK)
 

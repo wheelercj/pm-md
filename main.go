@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"html/template"
 	"log"
+	"log/slog"
 	"os"
 	"regexp"
 	"strings"
@@ -18,7 +20,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("file size: %d characters\n", len(fileContent))
+	slog.Debug("file size", "characters", len(fileContent))
 
 	var collection Collection
 	if err := json.Unmarshal(fileContent, &collection); err != nil {
@@ -29,15 +31,42 @@ func main() {
 	}
 
 	routes := collection.Routes
-	versionedCollectionName := getVersionedCollectionName(collection.Info.Name, routes)
-	mdFileName := CreateUniqueFileName(versionedCollectionName, ".md")
+	collection.Info.Name = getVersionedCollectionName(collection.Info.Name, routes)
+	mdFileName := CreateUniqueFileName(collection.Info.Name, ".md")
 	mdFile, err := os.Create(mdFileName)
 	if err != nil {
 		panic(err)
 	}
 	defer mdFile.Close()
 
-	mdFile.Write(toMarkdown(versionedCollectionName, routes))
+	funcMap := template.FuncMap{
+		"join": func(elems []string, sep string) string {
+			return strings.Join(elems, sep)
+		},
+		"allowJson": func(s string) any {
+			s = strings.TrimSpace(s)
+			if (strings.HasPrefix(s, "{") && strings.HasSuffix(s, "}")) ||
+				(strings.HasPrefix(s, "[") && strings.HasSuffix(s, "]")) {
+				return template.HTML(s)
+			}
+			return s
+		},
+		"assumeSafeHtml": func(s string) template.HTML {
+			// This prevents HTML escaping. Never run this with untrusted input.
+			return template.HTML(s)
+		},
+	}
+
+	tmplFileName := "collection.tmpl"
+	tmpl, err := template.New(tmplFileName).Funcs(funcMap).ParseFiles(tmplFileName)
+	if err != nil {
+		panic(err)
+	}
+	err = tmpl.Execute(mdFile, collection)
+	if err != nil {
+		panic(err)
+	}
+
 }
 
 // If the collection's first route has a version number like `/v1/something`, then ` v1`

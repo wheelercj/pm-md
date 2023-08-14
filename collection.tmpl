@@ -1,0 +1,20 @@
+# {{ .Info.Name }}
+{{ range .Routes }}
+----------------------------------------
+
+## {{ .Name }}
+
+{{ .Request.Method }} `/{{ join .Request.Url.Path "/" }}`
+{{ if (ne .Request.Body.Raw "") }}
+### sample request body
+
+```{{ .Request.Body.Options.Raw.Language }}
+{{ allowJson .Request.Body.Raw }}
+```
+{{ end }}{{ range .Responses }}
+### sample response (status: {{ .Code }} {{ .Status }})
+
+```{{ .Language }}
+{{ allowJson .Body }}
+```
+{{ end }}{{ end }}
