@@ -2,8 +2,9 @@
 
 Convert a Postman collection to markdown documentation.
 
-* [sample result](samples/calendar%20API%20v1.md)
-* [sample source JSON](samples/calendar%20API.postman_collection.json)
+[sample result](samples/calendar%20API%20v1.md)
+
+The results look best when there is an example saved for each endpoint.
 
 ## install
 
@@ -12,11 +13,13 @@ Convert a Postman collection to markdown documentation.
 1. [Click here to download](https://github.com/wheelercj/postman-to-markdown/releases/download/v0.0.1/pm-md.zip).
 2. Unzip the file.
 3. In Postman, export a collection as a v2.1.0 collection.
-4. Run the app in a terminal with `pm-md.exe "json file path here"`.
+4. Run the app in a terminal with `pm-md.exe "json file path here"`. The terminal's working directory must be where pm-md.exe is.
 
 If you will use this app often, you might want to [create a custom terminal command](https://wheelercj.github.io/notes/pages/20220320181252.html).
 
 ### Mac, Linux, and Windows
+
+These steps require [Git](https://git-scm.com/) and [Go](https://go.dev/) to be installed.
 
 1. In a terminal, run `git clone https://github.com/wheelercj/postman-to-markdown.git` where you want this app's folder to appear and `cd` into the new folder.
 2. In Postman, export a collection as a v2.1.0 collection.
