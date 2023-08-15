@@ -11,8 +11,8 @@ type Collection struct {
 	Events []struct {
 		Listen string `json:"listen"`
 		Script struct {
-			Type string `json:"type"`
-			Exec []string
+			Type string   `json:"type"`
+			Exec []string `json:"exec"`
 		} `json:"script"`
 	} `json:"event"`
 	Variables []struct {
