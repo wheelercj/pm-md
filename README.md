@@ -16,7 +16,7 @@ The results look best when there is an example saved for each endpoint. After cl
 * if you have [Go](https://go.dev/) installed, you can use `go run github.com/wheelercj/pm-md@latest`
 * install from source following the instructions below (also requires Go)
 
-Run the app with `pm-md "json file path here"`.
+Run the app with `pm-md "json file path here"`. You can get the JSON file from Postman by exporting a collection as a v2.1.0 collection.
 
 ### install from source
 
