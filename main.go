@@ -34,7 +34,9 @@ func main() {
 	}
 
 	routes := collection.Routes
-	collection.Info.Name = getVersionedCollectionName(collection.Info.Name, routes)
+	if v, err := getVersion(routes); err == nil {
+		collection.Info.Name += " " + v
+	}
 	mdFileName := CreateUniqueFileName(collection.Info.Name, ".md")
 	mdFile, err := os.Create(mdFileName)
 	if err != nil {
@@ -71,15 +73,14 @@ func main() {
 	fmt.Println("Created", mdFileName)
 }
 
-// If the collection's first route has a version number like `/v1/something`, then ` v1`
-// is appended to the collection's name. Otherwise, the collection's name is returned
-// unchanged.
-func getVersionedCollectionName(baseCollectionName string, routes Routes) string {
+// If the collection's first route has a version number like `/v1/something`, then `v1`
+// is returned. If no version number is found, a non-nil error is returned.
+func getVersion(routes Routes) (string, error) {
 	if len(routes) > 0 && len(routes[0].Request.Url.Path) > 0 {
 		maybeVersion := routes[0].Request.Url.Path[0]
 		if matched, err := regexp.Match(`v\d+`, []byte(maybeVersion)); err == nil && matched {
-			return baseCollectionName + " " + maybeVersion
+			return maybeVersion, nil
 		}
 	}
-	return baseCollectionName
+	return "", fmt.Errorf("No version number found")
 }
