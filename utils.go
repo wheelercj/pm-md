@@ -22,7 +22,7 @@ func CreateUniqueFileName(fileName, extension string) string {
 		panic("extension must start with a period")
 	}
 	uniqueFileName := fileName + extension
-	for i := 1; i < 100 && FileExists(uniqueFileName); i++ {
+	for i := 1; FileExists(uniqueFileName); i++ {
 		uniqueFileName = fileName + "(" + fmt.Sprint(i) + ")" + extension
 	}
 	return uniqueFileName
