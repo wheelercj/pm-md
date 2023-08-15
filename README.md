@@ -39,3 +39,4 @@ Here are some resources that were helpful when creating this app.
 * [How To Use Templates in Go -- DigitalOcean](https://www.digitalocean.com/community/tutorials/how-to-use-templates-in-go)
 * [JSON and Go -- The Go Blog](https://go.dev/blog/json)
 * [the embed package -- Go's standard library](https://pkg.go.dev/embed)
+* [How To Use Struct Tags in Go -- DigitalOcean](https://www.digitalocean.com/community/tutorials/how-to-use-struct-tags-in-go)
