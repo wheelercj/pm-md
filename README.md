@@ -8,28 +8,26 @@ If you install from source, the resulting markdown file's format is easy to cust
 
 The results look best when there is an example saved for each endpoint. After clicking "Send" in Postman, you can click "Save as Example" to save an example.
 
-## install
+## download
 
-### Windows
+3 choices for how to download:
 
-1. [Download pm-md.zip here](https://github.com/wheelercj/pm-md/releases).
-2. Unzip the file.
-3. In Postman, export a collection as a v2.1.0 collection.
-4. Run the app in a terminal with `pm-md "json file path here"`. The terminal's working directory must be where pm-md.exe is.
+* [download a zipped executable file](https://github.com/wheelercj/pm-md/releases) and unzip it
+* if you have [Go](https://go.dev/) installed, you can use `go run github.com/wheelercj/pm-md@latest`
+* install from source following the instructions below (also requires Go)
 
-If you will use this app often, you might want to [create a custom terminal command](https://wheelercj.github.io/notes/pages/20220320181252.html).
+Run the app with `pm-md "json file path here"`.
 
-### Mac, Linux, and Windows (install from source)
+### install from source
 
 These steps require [Go](https://go.dev/) to be installed.
 
 1. In Postman, export a collection as a v2.1.0 collection.
-2. Choose one of the source code download options [here](https://github.com/wheelercj/pm-md/releases) (or `git clone`).
-3. Unzip the folder.
-4. Open a terminal in the new folder.
-5. Run `go build` to create an executable file.
-6. Run `go install` to install the executable file. If you get an error message, you may need to [edit your PATH environment variable](https://go.dev/doc/tutorial/compile-install).
-7. Run the app with `pm-md "json file path here"`. If you installed the executable file, this should work in any directory.
+2. Choose one of the source code download options [here](https://github.com/wheelercj/pm-md/releases) and unzip the folder (or use `git clone`).
+3. Open a terminal in the new folder.
+4. Run `go build` to create an executable file.
+5. Run `go install` to install the executable file. If you get an error message, you may need to [edit your PATH environment variable](https://go.dev/doc/tutorial/compile-install).
+6. Run the app with `pm-md "json file path here"`. If you installed the executable file, this should work in any directory.
 
 ## developer resources
 
@@ -40,3 +38,5 @@ Here are some resources that were helpful when creating this app.
 * [JSON and Go -- The Go Blog](https://go.dev/blog/json)
 * [the embed package -- Go's standard library](https://pkg.go.dev/embed)
 * [How To Use Struct Tags in Go -- DigitalOcean](https://www.digitalocean.com/community/tutorials/how-to-use-struct-tags-in-go)
+* [GoReleaser](https://goreleaser.com/)
+* [how to create a custom terminal command](https://wheelercj.github.io/notes/pages/20220320181252.html)
