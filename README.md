@@ -4,8 +4,6 @@ Convert a Postman collection to markdown documentation.
 
 [sample result](samples/calendar%20API%20v1.md)
 
-If you install from source, the resulting markdown file's format is easy to customize by editing `collection.tmpl` using the types defined in `types.go` and the `template.FuncMap` defined in `main.go`. See the links under "developer resources" below for more details about templates.
-
 The results look best when there is an example saved for each endpoint. After clicking "Send" in Postman, you can click "Save as Example" to save an example.
 
 ## download
@@ -28,6 +26,8 @@ These steps require [Go](https://go.dev/) to be installed.
 4. Run `go build` to create an executable file.
 5. Run `go install` to install the executable file. If you get an error message, you may need to [edit your PATH environment variable](https://go.dev/doc/tutorial/compile-install).
 6. Run the app with `pm-md "json file path here"`. If you installed the executable file, this should work in any directory.
+
+If you install from source, the resulting markdown file's format is easy to customize by editing `collection.tmpl` using the types defined in `types.go` and the `template.FuncMap` defined in `main.go`. See the links under "developer resources" below for more details about templates.
 
 ## developer resources
 
