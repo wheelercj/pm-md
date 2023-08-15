@@ -5,7 +5,7 @@
 ## {{ .Name }}
 
 {{ .Request.Method }} `/{{ join .Request.Url.Path "/" }}`
-{{ if (ne .Request.Body.Raw "") }}
+{{ if .Request.Body.Raw }}
 ### sample request body
 
 ```{{ .Request.Body.Options.Raw.Language }}
