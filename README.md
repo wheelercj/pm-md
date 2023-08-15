@@ -28,9 +28,8 @@ These steps require [Go](https://go.dev/) to be installed.
 3. Unzip the folder.
 4. Open a terminal in the new folder.
 5. Run `go build` to create an executable file.
-6. Run the app with `./pm-md "json file path here"`.
-
-If you will use this app often, you might want to [install the app](https://go.dev/doc/tutorial/compile-install).
+6. Run `go install` to install the executable file. If you get an error message, you may need to [edit your PATH environment variable](https://go.dev/doc/tutorial/compile-install).
+7. Run the app with `pm-md "json file path here"`. If you installed the executable file, this should work in any directory.
 
 ## developer resources
 
