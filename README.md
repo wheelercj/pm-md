@@ -33,6 +33,7 @@ If you install from source, the resulting markdown file's format can be customiz
 
 Here are some resources that were helpful when creating this app.
 
+* [intro to Go](https://wheelercj.github.io/notes/pages/20221122173910.html)
 * [the template package — Go's standard library](https://pkg.go.dev/text/template)
 * [How To Use Templates in Go — DigitalOcean](https://www.digitalocean.com/community/tutorials/how-to-use-templates-in-go)
 * [JSON and Go — The Go Blog](https://go.dev/blog/json)
