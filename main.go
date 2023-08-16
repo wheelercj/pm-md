@@ -37,7 +37,10 @@ func main() {
 	if v, err := getVersion(routes); err == nil {
 		collection.Info.Name += " " + v
 	}
-	mdFileName := CreateUniqueFileName(collection.Info.Name, ".md")
+	mdFileName, err := CreateUniqueFileName(collection.Info.Name, ".md")
+	if err != nil {
+		panic(err)
+	}
 	mdFile, err := os.Create(mdFileName)
 	if err != nil {
 		panic(err)
