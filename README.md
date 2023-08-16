@@ -4,28 +4,27 @@ Convert a Postman collection to markdown documentation.
 
 [sample result](samples/calendar%20API%20v1.md)
 
+This app uses a JSON file exported from a Postman collection (choose the v2.1.0 export option).
+
 The result looks best when there is an example saved for each endpoint (after clicking "Send" in Postman, a "Save as Example" button appears).
 
 ## download
 
 3 choices for how to download:
 
-* [download a zipped executable file](https://github.com/wheelercj/pm-md/releases), unzip it, and run the app with `./pm-md "json file path here"`
-* `go install github.com/wheelercj/pm-md@latest` and then `pm-md "json file path here"`
+* [download a zipped executable file](https://github.com/wheelercj/pm-md/releases), unzip it, and run the app with `./pm-md`
+* `go install github.com/wheelercj/pm-md@latest` and then `pm-md`
 * install from source following the instructions below
-
-You can get the JSON file from Postman by exporting a collection as a v2.1.0 collection.
 
 ### install from source
 
 These steps require [Go](https://go.dev/) to be installed.
 
-1. In Postman, export a collection as a v2.1.0 collection.
-2. Choose one of the source code download options [here](https://github.com/wheelercj/pm-md/releases) and unzip the folder (or use `git clone`).
-3. Open a terminal in the new folder.
-4. Run `go build` to create an executable file.
-5. Run `go install` to install the executable file. If you get an error message, you may need to [edit your PATH environment variable](https://go.dev/doc/tutorial/compile-install).
-6. Run the app with `pm-md "json file path here"`. If you installed the executable file, this should work in any directory.
+1. Choose one of the source code download options [here](https://github.com/wheelercj/pm-md/releases) and unzip the folder (or use `git clone`).
+2. Open a terminal in the new folder.
+3. Run `go build` to create an executable file.
+4. Run `go install` to install the executable file. If you get an error message, you may need to [edit your PATH environment variable](https://go.dev/doc/tutorial/compile-install).
+5. Run the app with `pm-md`.
 
 If you install from source, the resulting markdown file's format can be customized by editing `collection.tmpl` using the types defined in `types.go` and the `template.FuncMap` defined in `main.go`. See the links under "developer resources" below for more details about templates. Use `go build` and `go install` after editing.
 

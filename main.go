@@ -14,19 +14,32 @@ import (
 var tmplStr string
 
 func main() {
+	instructions := "usage: pm-md json_file\n\nYou can get the JSON file from Postman by exporting a collection as a v2.1.0 collection."
+	if len(os.Args) == 1 {
+		fmt.Println(instructions)
+		os.Exit(0)
+	}
 	jsonFilePath := os.Args[1]
+	if !strings.HasSuffix(jsonFilePath, ".json") && !strings.HasSuffix(jsonFilePath, ".JSON") {
+		fmt.Println(instructions)
+		os.Exit(0)
+	}
+
 	fileContent, err := os.ReadFile(jsonFilePath)
 	if err != nil {
-		panic(err)
+		fmt.Println("Error:", err)
+		os.Exit(1)
 	}
 	// fmt.Printf("file size: %v characters", len(fileContent))
 
 	var collection Collection
 	if err := json.Unmarshal(fileContent, &collection); err != nil {
-		panic(err)
+		fmt.Println("Error:", err)
+		os.Exit(1)
 	}
 	if collection.Info.Schema != "https://schema.getpostman.com/json/collection/v2.1.0/collection.json" {
-		panic("When exporting from Postman, export as Collection v2.1.0")
+		fmt.Println("Error: unknown JSON schema. When exporting from Postman, export as Collection v2.1.0")
+		os.Exit(1)
 	}
 
 	routes := collection.Routes
