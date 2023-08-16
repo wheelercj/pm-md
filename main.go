@@ -3,11 +3,8 @@ package main
 import (
 	_ "embed"
 	"encoding/json"
-	"flag"
 	"fmt"
 	"html/template"
-	"log"
-	"log/slog"
 	"os"
 	"regexp"
 	"strings"
@@ -17,20 +14,19 @@ import (
 var tmplStr string
 
 func main() {
-	flag.Parse()
-	jsonFilePath := flag.Arg(0)
+	jsonFilePath := os.Args[1]
 	fileContent, err := os.ReadFile(jsonFilePath)
 	if err != nil {
 		panic(err)
 	}
-	slog.Debug("file size", "characters", len(fileContent))
+	// fmt.Printf("file size: %v characters", len(fileContent))
 
 	var collection Collection
 	if err := json.Unmarshal(fileContent, &collection); err != nil {
 		panic(err)
 	}
 	if collection.Info.Schema != "https://schema.getpostman.com/json/collection/v2.1.0/collection.json" {
-		log.Fatal("When exporting from Postman, export as Collection v2.1.0")
+		panic("When exporting from Postman, export as Collection v2.1.0")
 	}
 
 	routes := collection.Routes
