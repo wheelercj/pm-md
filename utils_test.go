@@ -29,18 +29,27 @@ func TestCreateUniqueFileName(t *testing.T) {
 	for _, test := range tests {
 		testName := fmt.Sprintf("%q,%q", test.a, test.b)
 		t.Run(testName, func(t *testing.T) {
-			ans, err := CreateUniqueFileName(test.a, test.b)
-			if ans != test.want || err != nil {
+			ans := CreateUniqueFileName(test.a, test.b)
+			if ans != test.want {
 				t.Errorf(
-					"CreateUniqueFileName(%q, %q) = (%q, %q), want (%q, nil)",
-					test.a, test.b, ans, err, test.want,
+					"CreateUniqueFileName(%q, %q) = %q, want %q",
+					test.a, test.b, ans, test.want,
 				)
 			}
 		})
 	}
 }
 
-func TestCreateUniqueFileNameError(t *testing.T) {
+func assertPanic(t *testing.T, f func(string, string) string, a, b string) {
+	defer func() {
+		if recover() == nil {
+			t.Error("panic expected")
+		}
+	}()
+	f(a, b)
+}
+
+func TestCreateUniqueFileNamePanic(t *testing.T) {
 	tests := []struct {
 		a, b string
 	}{
@@ -52,12 +61,7 @@ func TestCreateUniqueFileNameError(t *testing.T) {
 	for _, test := range tests {
 		testName := fmt.Sprintf("%q,%q", test.a, test.b)
 		t.Run(testName, func(t *testing.T) {
-			if ans, err := CreateUniqueFileName(test.a, test.b); err == nil {
-				t.Errorf(
-					"CreateUniqueFileName(%q, %q) = (%q, nil), want (\"\", non-nil error)",
-					test.a, test.b, ans,
-				)
-			}
+			assertPanic(t, CreateUniqueFileName, test.a, test.b)
 		})
 	}
 }
