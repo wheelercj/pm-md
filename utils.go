@@ -7,16 +7,16 @@ import (
 	"strings"
 )
 
-// Checks if a given file or folder exists on the device.
+// FileExists checks if a given file or folder exists on the device.
 func FileExists(path string) bool {
 	_, err := os.Stat(path)
 	return !errors.Is(err, os.ErrNotExist)
 }
 
-// If an existing file has the given name and extension, parentheses around a number are
-// appended to the file name to make it unique. Otherwise, the given file name remains
-// unchanged. The extension is then concatenated. The extension must be empty or be a
-// period followed by one or more characters.
+// CreateUniqueFileName returns the given file name and extension (concatenated) if no
+// file with them exists. Otherwise, parentheses around a number are inserted before the
+// extension to make it unique. The extension must be empty or be a period followed by
+// one or more characters.
 func CreateUniqueFileName(fileName, extension string) string {
 	if extension == "." || (len(extension) > 0 && !strings.HasPrefix(extension, ".")) {
 		panic("Extension must be empty or be a period followed by one or more characters")

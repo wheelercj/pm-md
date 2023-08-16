@@ -69,8 +69,9 @@ func main() {
 	fmt.Println("Created", mdFileName)
 }
 
-// If the collection's first route has a version number like `/v1/something`, then `v1`
-// is returned. If no version number is found, an error is returned.
+// getVersion returns the version number of a collection. If the collection's first
+// route has a version number like `/v1/something`, then `v1` is returned. If no version
+// number is found, an error is returned.
 func getVersion(routes Routes) (string, error) {
 	if len(routes) > 0 && len(routes[0].Request.Url.Path) > 0 {
 		maybeVersion := routes[0].Request.Url.Path[0]
