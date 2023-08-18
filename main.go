@@ -34,37 +34,53 @@ var tmplStr string
 const version string = "v0.0.4"
 
 func main() {
-	os.Args[0] = strings.Split(path.Base(strings.Replace(os.Args[0], "\\", "/", -1)), ".")[0]
-	help := fmt.Sprintf(
-		"usage: %s json_file\n\nYou can get the JSON file from Postman by exporting a"+
-			" collection as a v2.1.0 collection.\n\n%s %s  You can check for updates here:"+
-			" https://github.com/wheelercj/pm-md/releases", os.Args[0], os.Args[0], version)
+	exePath := os.Args[0]
+	cmdName := strings.Split(path.Base(strings.Replace(exePath, "\\", "/", -1)), ".")[0]
 
-	versionFlag := flag.Bool("version", false, "See this app's version")
+	versionHelp := fmt.Sprintf(
+		"%s (you can check for updates here: https://github.com/wheelercj/pm-md/releases)",
+		version,
+	)
+	jsonHelp := "You can get the JSON file from Postman by exporting a collection as a v2.1.0 collection."
+	usageHelp := fmt.Sprintf("usage: %s json_file", cmdName)
+
+	versionFlag := flag.Bool("version", false, versionHelp)
 	statusesFlag := flag.String(
 		"statuses",
 		"",
-		"Include only the sample responses within the given range(s) of status codes."+
-			" Example ranges: \"200-299\" or \"200-299,400-499\"")
+		"Include only the sample responses with status codes in given range(s)."+
+			" Example ranges: \"200-299\", \"200-299,400-499\".")
 
-	flag.Parse()
+	flag.Usage = func() {
+		fmt.Printf("%s\n", usageHelp)
+		flag.PrintDefaults()
+		fmt.Printf("\n%s\n", jsonHelp)
+	}
+
+	flag.Parse() // if the -help flag is used, program execution ends here
 
 	if *versionFlag {
-		fmt.Println(version)
+		fmt.Println(versionHelp)
+		os.Exit(0)
 	}
 
 	args := flag.Args()
 	if len(args) == 0 {
-		fmt.Println(help)
-		os.Exit(0)
+		if len(*statusesFlag) > 0 {
+			fmt.Printf("Error: argument json_file required. See '%s -help'\n", cmdName)
+			os.Exit(1)
+		} else {
+			flag.Usage()
+			os.Exit(1)
+		}
 	}
 
 	statusRanges := parseStatusRanges(*statusesFlag)
 
 	jsonFilePath := args[0]
 	if !strings.HasSuffix(jsonFilePath, ".json") && !strings.HasSuffix(jsonFilePath, ".JSON") {
-		fmt.Println(help)
-		os.Exit(0)
+		flag.Usage()
+		os.Exit(1)
 	}
 
 	fileContent, err := os.ReadFile(jsonFilePath)
@@ -125,9 +141,12 @@ func main() {
 }
 
 // parseStatusRanges converts a string of status ranges to a slice of slices of
-// integers. The slice may be empty, but any inner slices each have two elements: the
+// integers. The slice may be nil, but any inner slices each have two elements: the
 // start and end of the range.
 func parseStatusRanges(statusesStr string) [][]int {
+	if len(statusesStr) == 0 {
+		return nil
+	}
 	statusRangeStrs := strings.Split(statusesStr, ",")
 	statusRanges := make([][]int, len(statusRangeStrs))
 	for i, statusRangeStr := range statusRangeStrs {
@@ -156,10 +175,10 @@ func parseStatusRanges(statusesStr string) [][]int {
 // filterResponses removes all sample responses with status codes outside the given
 // range(s). If no status ranges are given, the collection remains unchanged.
 func filterResponses(collection Collection, statusRanges [][]int) Collection {
-	if len(statusRanges) == 0 {
+	if statusRanges == nil || len(statusRanges) == 0 {
 		return collection
 	}
-	for _, route := range collection.Routes {
+	for i, route := range collection.Routes {
 		for j := len(route.Responses) - 1; j >= 0; j-- {
 			response := route.Responses[j]
 			inRange := false
@@ -172,6 +191,7 @@ func filterResponses(collection Collection, statusRanges [][]int) Collection {
 			if !inRange {
 				route.Responses = slices.Delete(route.Responses, j, j+1)
 			}
+			collection.Routes[i] = route
 		}
 	}
 	return collection
