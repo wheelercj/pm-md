@@ -41,20 +41,8 @@ type Routes []struct {
 	ProtocolProfileBehavior struct {
 		DisableBodyPruning bool `json:"disableBodyPruning"`
 	} `json:"protocolProfileBehavior"`
-	Request   Request `json:"request"`
-	Responses []struct {
-		Name            string  `json:"name"`
-		OriginalRequest Request `json:"originalRequest"`
-		Status          string  `json:"status"`
-		Code            int     `json:"code"`
-		Language        string  `json:"_postman_previewlanguage"`
-		Headers         []struct {
-			Key   string `json:"key"`
-			Value string `json:"value"`
-		} `json:"header"`
-		Cookies []any  `json:"cookie"`
-		Body    string `json:"body"`
-	} `json:"response"`
+	Request   Request   `json:"request"`
+	Responses Responses `json:"response"`
 }
 
 type Request struct {
@@ -74,4 +62,18 @@ type Request struct {
 		Host []string `json:"host"`
 		Path []string `json:"path"`
 	} `json:"url"`
+}
+
+type Responses []struct {
+	Name            string  `json:"name"`
+	OriginalRequest Request `json:"originalRequest"`
+	Status          string  `json:"status"`
+	Code            int     `json:"code"`
+	Language        string  `json:"_postman_previewlanguage"`
+	Headers         []struct {
+		Key   string `json:"key"`
+		Value string `json:"value"`
+	} `json:"header"`
+	Cookies []any  `json:"cookie"`
+	Body    string `json:"body"`
 }
