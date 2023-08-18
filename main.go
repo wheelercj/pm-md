@@ -33,9 +33,9 @@ var tmplStr string
 
 const version string = "v0.0.4"
 
-func main() {
-	exePath := os.Args[0]
-	cmdName := strings.Split(path.Base(strings.Replace(exePath, "\\", "/", -1)), ".")[0]
+func parseArgs() (jsonFilePath string, statusRanges [][]int) {
+	exePath := strings.Replace(os.Args[0], "\\", "/", -1)
+	cmdName := strings.Split(path.Base(exePath), ".")[0]
 
 	versionHelp := fmt.Sprintf(
 		"%s (you can check for updates here: https://github.com/wheelercj/pm-md/releases)",
@@ -75,31 +75,27 @@ func main() {
 		}
 	}
 
-	statusRanges := parseStatusRanges(*statusesFlag)
+	statusRanges = parseStatusRanges(*statusesFlag)
 
-	jsonFilePath := args[0]
+	jsonFilePath = args[0]
 	if !strings.HasSuffix(jsonFilePath, ".json") && !strings.HasSuffix(jsonFilePath, ".JSON") {
 		flag.Usage()
 		os.Exit(1)
 	}
 
+	return jsonFilePath, statusRanges
+}
+
+func main() {
+	jsonFilePath, statusRanges := parseArgs()
+	
 	fileContent, err := os.ReadFile(jsonFilePath)
 	if err != nil {
 		fmt.Println("Error:", err)
 		os.Exit(1)
 	}
 
-	var collection Collection
-	if err := json.Unmarshal(fileContent, &collection); err != nil {
-		fmt.Println("Error:", err)
-		os.Exit(1)
-	}
-	if collection.Info.Schema != "https://schema.getpostman.com/json/collection/v2.1.0/collection.json" {
-		fmt.Println("Error: unknown JSON schema. When exporting from Postman, export as Collection v2.1.0")
-		os.Exit(1)
-	}
-	collection = filterResponses(collection, statusRanges)
-
+	collection := parseCollection(fileContent, statusRanges)
 	routes := collection.Routes
 	if v, err := getVersion(routes); err == nil {
 		collection.Info.Name += " " + v
@@ -138,6 +134,23 @@ func main() {
 	}
 
 	fmt.Println("Created", mdFileName)
+}
+
+// parseCollection converts a collection from a slice of bytes to a Collection instance.
+// If any status ranges are given, only responses with status codes within those ranges
+// are kept in the collection.
+func parseCollection(data []byte, statusRanges [][]int) Collection {
+	var collection Collection
+	if err := json.Unmarshal(data, &collection); err != nil {
+		fmt.Println("Error:", err)
+		os.Exit(1)
+	}
+	if collection.Info.Schema != "https://schema.getpostman.com/json/collection/v2.1.0/collection.json" {
+		fmt.Println("Error: unknown JSON schema. When exporting from Postman, export as Collection v2.1.0")
+		os.Exit(1)
+	}
+
+	return filterResponses(collection, statusRanges)
 }
 
 // parseStatusRanges converts a string of status ranges to a slice of slices of
