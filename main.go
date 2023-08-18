@@ -31,7 +31,7 @@ import (
 //go:embed collection.tmpl
 var tmplStr string
 
-const version string = "v0.0.4"
+const version string = "v0.0.5"
 
 func parseArgs() (jsonFilePath string, statusRanges [][]int) {
 	exePath := strings.Replace(os.Args[0], "\\", "/", -1)
