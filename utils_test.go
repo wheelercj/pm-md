@@ -21,6 +21,8 @@ import (
 	"testing"
 )
 
+// assertPanic takes any function and arguments for that function, calls the given
+// function with the given arguments, and asserts that the given function then panics.
 func assertPanic(t *testing.T, f any, args ...any) {
 	defer func() {
 		if r := recover(); r == nil {
