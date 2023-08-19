@@ -47,6 +47,13 @@ func TestParseEmptyCollection(t *testing.T) {
 }
 
 func TestJsonToMdFile(t *testing.T) {
+	// Skip this test if unique file name creation isn't working.
+	TestCreateUniqueFileName(t)
+	TestCreateUniqueFileNamePanic(t)
+	if t.Failed() {
+		return
+	}
+
 	inputFilePath := "samples/calendar API.postman_collection.json"
 	wantFilePath := "samples/calendar API v1.md"
 	jsonBytes, err := os.ReadFile(inputFilePath)
