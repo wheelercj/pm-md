@@ -16,8 +16,24 @@ package main
 
 import (
 	"fmt"
+	"reflect"
 	"testing"
 )
+
+func assertPanic(t *testing.T, f any, args ...any) {
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("panic expected")
+		}
+	}()
+
+	reflectArgs := make([]reflect.Value, len(args))
+	for i, arg := range args {
+		reflectArgs[i] = reflect.ValueOf(arg)
+	}
+
+	reflect.ValueOf(f).Call(reflectArgs)
+}
 
 func TestFileExists(t *testing.T) {
 	if !FileExists("LICENSE") {
@@ -52,15 +68,6 @@ func TestCreateUniqueFileName(t *testing.T) {
 			}
 		})
 	}
-}
-
-func assertPanic(t *testing.T, f func(string, string) string, a, b string) {
-	defer func() {
-		if recover() == nil {
-			t.Error("panic expected")
-		}
-	}()
-	f(a, b)
 }
 
 func TestCreateUniqueFileNamePanic(t *testing.T) {
