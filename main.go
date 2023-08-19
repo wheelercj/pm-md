@@ -95,7 +95,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	collection := parseCollection(fileContent, statusRanges)
+	collection, err := parseCollection(fileContent)
+	if err != nil {
+		fmt.Println("Error:", err)
+		os.Exit(1)
+	}
+	filterResponses(collection, statusRanges)
 	routes := collection.Routes
 	if v, err := getVersion(routes); err == nil {
 		collection.Info.Name += " " + v
@@ -136,21 +141,19 @@ func main() {
 	fmt.Println("Created", mdFileName)
 }
 
-// parseCollection converts a collection from a slice of bytes to a Collection instance.
-// If any status ranges are given, only responses with status codes within those ranges
-// are kept in the collection.
-func parseCollection(data []byte, statusRanges [][]int) Collection {
+// parseCollection converts a collection from a slice of bytes of JSON to a Collection
+// instance.
+func parseCollection(jsonBytes []byte) (*Collection, error) {
 	var collection Collection
-	if err := json.Unmarshal(data, &collection); err != nil {
-		fmt.Println("Error:", err)
-		os.Exit(1)
+	if err := json.Unmarshal(jsonBytes, &collection); err != nil {
+		return nil, err
 	}
 	if collection.Info.Schema != "https://schema.getpostman.com/json/collection/v2.1.0/collection.json" {
 		fmt.Println("Error: unknown JSON schema. When exporting from Postman, export as Collection v2.1.0")
 		os.Exit(1)
 	}
 
-	return filterResponses(collection, statusRanges)
+	return &collection, nil
 }
 
 // parseStatusRanges converts a string of status ranges to a slice of slices of
@@ -187,9 +190,9 @@ func parseStatusRanges(statusesStr string) [][]int {
 
 // filterResponses removes all sample responses with status codes outside the given
 // range(s). If no status ranges are given, the collection remains unchanged.
-func filterResponses(collection Collection, statusRanges [][]int) Collection {
+func filterResponses(collection *Collection, statusRanges [][]int) {
 	if statusRanges == nil || len(statusRanges) == 0 {
-		return collection
+		return
 	}
 	for i, route := range collection.Routes {
 		for j := len(route.Responses) - 1; j >= 0; j-- {
@@ -207,7 +210,6 @@ func filterResponses(collection Collection, statusRanges [][]int) Collection {
 			collection.Routes[i] = route
 		}
 	}
-	return collection
 }
 
 // getVersion returns the version number of a collection. If the collection's first

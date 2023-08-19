@@ -36,3 +36,10 @@ func TestParseStatusRanges(t *testing.T) {
 		}
 	}
 }
+
+func TestParseEmptyCollection(t *testing.T) {
+	collection, err := parseCollection([]byte(""))
+	if err == nil {
+		t.Errorf("parseCollection([]byte(\"\")) = (%v, %v), want (nil, error)", collection, err)
+	}
+}
