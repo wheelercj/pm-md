@@ -155,7 +155,7 @@ func parseCollection(data []byte, statusRanges [][]int) Collection {
 
 // parseStatusRanges converts a string of status ranges to a slice of slices of
 // integers. The slice may be nil, but any inner slices each have two elements: the
-// start and end of the range.
+// start and end of the range. Example ranges: "200-299", "200-299,400-499", "200-200".
 func parseStatusRanges(statusesStr string) [][]int {
 	if len(statusesStr) == 0 {
 		return nil
