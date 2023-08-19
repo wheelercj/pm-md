@@ -17,6 +17,7 @@ package main
 import (
 	"fmt"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -33,6 +34,40 @@ func assertPanic(t *testing.T, f any, args ...any) {
 	}
 
 	reflect.ValueOf(f).Call(reflectArgs)
+}
+
+// assertNoDiff compares two strings, asserting they have the same number of lines and
+// the same content on each line. The strings have lines separated by linesep.
+func assertNoDiff(t *testing.T, ans, want, linesep string) {
+	if ans == want {
+		return
+	}
+	ansSlice := strings.Split(ans, linesep)
+	wantSlice := strings.Split(want, linesep)
+	for i := 0; i < len(ansSlice); i++ {
+		if i >= len(wantSlice) {
+			t.Errorf(
+				"Actual output longer than expected (want %d lines, got %d).\nContinues with\n  %q",
+				len(wantSlice), len(ansSlice), ansSlice[i],
+			)
+			return
+		}
+		if ansSlice[i] != wantSlice[i] {
+			t.Errorf(
+				"Difference on line %d\nwant:\n  %q\ngot:\n  %q",
+				i+1, wantSlice[i], ansSlice[i],
+			)
+			return
+		}
+	}
+	if len(ansSlice) < len(wantSlice) {
+		t.Errorf(
+			"Actual output shorter than expected (want %d lines, got %d).\nShould continue with\n  %q",
+			len(wantSlice), len(ansSlice), wantSlice[len(ansSlice)],
+		)
+		return
+	}
+	t.Errorf("The actual and expected strings don't match for an unknown reason")
 }
 
 func TestFileExists(t *testing.T) {

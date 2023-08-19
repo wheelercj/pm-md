@@ -15,7 +15,9 @@
 package main
 
 import (
+	"os"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -42,4 +44,29 @@ func TestParseEmptyCollection(t *testing.T) {
 	if err == nil {
 		t.Errorf("parseCollection([]byte(\"\")) = (%v, %v), want (nil, error)", collection, err)
 	}
+}
+
+func TestJsonToMdFile(t *testing.T) {
+	inputFilePath := "samples/calendar API.postman_collection.json"
+	wantFilePath := "samples/calendar API v1.md"
+	jsonBytes, err := os.ReadFile(inputFilePath)
+	if err != nil {
+		t.Errorf("Failed to open %s", inputFilePath)
+	}
+	mdFileName := jsonToMdFile(jsonBytes, nil)
+	defer os.Remove(mdFileName)
+	ansBytes, err := os.ReadFile(mdFileName)
+	if err != nil {
+		t.Errorf("Failed to open %s", mdFileName)
+		return
+	}
+	wantBytes, err := os.ReadFile(wantFilePath)
+	if err != nil {
+		t.Errorf("Failed to open %s", wantFilePath)
+		return
+	}
+	ans := strings.ReplaceAll(string(ansBytes), "\r\n", "\n")
+	want := strings.ReplaceAll(string(wantBytes), "\r\n", "\n")
+
+	assertNoDiff(t, ans, want, "\n")
 }

@@ -88,24 +88,29 @@ func parseArgs() (jsonFilePath string, statusRanges [][]int) {
 
 func main() {
 	jsonFilePath, statusRanges := parseArgs()
-	
-	fileContent, err := os.ReadFile(jsonFilePath)
+
+	jsonBytes, err := os.ReadFile(jsonFilePath)
 	if err != nil {
 		fmt.Println("Error:", err)
 		os.Exit(1)
 	}
 
-	collection, err := parseCollection(fileContent)
+	mdFileName := jsonToMdFile(jsonBytes, statusRanges)
+	fmt.Println("Created", mdFileName)
+}
+
+// jsonToMdFile converts JSON bytes into markdown and saves the markdown into a file.
+func jsonToMdFile(jsonBytes []byte, statusRanges [][]int) (mdFileName string) {
+	collection, err := parseCollection(jsonBytes)
 	if err != nil {
 		fmt.Println("Error:", err)
 		os.Exit(1)
 	}
 	filterResponses(collection, statusRanges)
-	routes := collection.Routes
-	if v, err := getVersion(routes); err == nil {
+	if v, err := getVersion(collection.Routes); err == nil {
 		collection.Info.Name += " " + v
 	}
-	mdFileName := CreateUniqueFileName(collection.Info.Name, ".md")
+	mdFileName = CreateUniqueFileName(collection.Info.Name, ".md")
 	mdFile, err := os.Create(mdFileName)
 	if err != nil {
 		panic(err)
@@ -138,7 +143,7 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println("Created", mdFileName)
+	return mdFileName
 }
 
 // parseCollection converts a collection from a slice of bytes of JSON to a Collection
