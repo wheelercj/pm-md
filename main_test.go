@@ -61,7 +61,11 @@ func TestJsonToMdFile(t *testing.T) {
 		t.Errorf("Failed to open %s", inputFilePath)
 		return
 	}
-	mdFileName := jsonToMdFile(jsonBytes, nil)
+	mdFileName, err := jsonToMdFile(jsonBytes, nil)
+	if err != nil {
+		t.Error(err)
+		return
+	}
 	defer os.Remove(mdFileName)
 	ansBytes, err := os.ReadFile(mdFileName)
 	if err != nil {

@@ -95,22 +95,27 @@ func main() {
 		os.Exit(1)
 	}
 
-	mdFileName := jsonToMdFile(jsonBytes, statusRanges)
-	fmt.Println("Created", mdFileName)
-}
-
-// jsonToMdFile converts JSON bytes into markdown and saves the markdown into a file.
-func jsonToMdFile(jsonBytes []byte, statusRanges [][]int) (mdFileName string) {
-	collection, err := parseCollection(jsonBytes)
-	if err != nil {
+	if mdFileName, err := jsonToMdFile(jsonBytes, statusRanges); err != nil {
 		fmt.Println("Error:", err)
 		os.Exit(1)
+	} else {
+		fmt.Println("Created", mdFileName)
+	}
+}
+
+// jsonToMdFile converts JSON bytes into markdown, saves the markdown into a file, and
+// returns the new markdown file's name. The new file is guaranteed to not replace an
+// existing file. The file's name is based on the contents of the given JSON.
+func jsonToMdFile(jsonBytes []byte, statusRanges [][]int) (string, error) {
+	collection, err := parseCollection(jsonBytes)
+	if err != nil {
+		return "", err
 	}
 	filterResponses(collection, statusRanges)
 	if v, err := getVersion(collection.Routes); err == nil {
 		collection.Info.Name += " " + v
 	}
-	mdFileName = CreateUniqueFileName(collection.Info.Name, ".md")
+	mdFileName := CreateUniqueFileName(collection.Info.Name, ".md")
 	mdFile, err := os.Create(mdFileName)
 	if err != nil {
 		panic(err)
@@ -143,7 +148,7 @@ func jsonToMdFile(jsonBytes []byte, statusRanges [][]int) (mdFileName string) {
 		panic(err)
 	}
 
-	return mdFileName
+	return mdFileName, nil
 }
 
 // parseCollection converts a collection from a slice of bytes of JSON to a Collection
