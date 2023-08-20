@@ -82,3 +82,27 @@ func TestJsonToMdFile(t *testing.T) {
 
 	assertNoDiff(t, ans, want, "\n")
 }
+
+func TestInvalidJsonToMdFile(t *testing.T) {
+	// Skip this test if unique file name creation isn't working.
+	TestCreateUniqueFileName(t)
+	TestCreateUniqueFileNamePanic(t)
+	if t.Failed() {
+		return
+	}
+
+	invalidJson := []byte(`
+		{
+			"info": {
+				"_postman_id": "23799766-64ba-4c7c-aaa9-0d880964db54",
+				"name": "calendar API",
+				"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+				"_exporter_id": "23363106"
+			},
+	`)
+	mdFileName, err := jsonToMdFile(invalidJson, nil)
+	if err == nil {
+		t.Error("Error expected")
+		os.Remove(mdFileName)
+	}
+}
