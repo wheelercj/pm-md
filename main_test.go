@@ -147,3 +147,28 @@ func TestParseCollectionWithOldSchema(t *testing.T) {
 		t.Errorf("want (nil, error), got a nil error and a non-nil collection: %v", *collection)
 	}
 }
+
+func TestFilterResponses(t *testing.T) {
+	inputFilePath := "samples/calendar API.postman_collection.json"
+	jsonBytes, err := os.ReadFile(inputFilePath)
+	if err != nil {
+		t.Errorf("Failed to open %s", inputFilePath)
+		return
+	}
+
+	collection, err := parseCollection(jsonBytes)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	filterResponses(collection, [][]int{{200, 200}})
+	for _, route := range collection.Routes {
+		for _, response := range route.Responses {
+			if response.Code != 200 {
+				t.Errorf("want 200, got %d", response.Code)
+				return
+			}
+		}
+	}
+}
