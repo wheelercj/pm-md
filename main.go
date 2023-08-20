@@ -75,7 +75,11 @@ func parseArgs() (jsonFilePath string, statusRanges [][]int) {
 		}
 	}
 
-	statusRanges = parseStatusRanges(*statusesFlag)
+	statusRanges, err := parseStatusRanges(*statusesFlag)
+	if err != nil {
+		fmt.Print(err)
+		os.Exit(1)
+	}
 
 	jsonFilePath = args[0]
 	if !strings.HasSuffix(jsonFilePath, ".json") && !strings.HasSuffix(jsonFilePath, ".JSON") {
@@ -168,33 +172,31 @@ func parseCollection(jsonBytes []byte) (*Collection, error) {
 // parseStatusRanges converts a string of status ranges to a slice of slices of
 // integers. The slice may be nil, but any inner slices each have two elements: the
 // start and end of the range. Example ranges: "200-299", "200-299,400-499", "200-200".
-func parseStatusRanges(statusesStr string) [][]int {
+func parseStatusRanges(statusesStr string) ([][]int, error) {
 	if len(statusesStr) == 0 {
-		return nil
+		return nil, nil
 	}
 	statusRangeStrs := strings.Split(statusesStr, ",")
 	statusRanges := make([][]int, len(statusRangeStrs))
 	for i, statusRangeStr := range statusRangeStrs {
 		startAndEnd := strings.Split(statusRangeStr, "-")
 		if len(startAndEnd) != 2 {
-			fmt.Println("Error: invalid status range format. There should be one dash (-) per range.")
-			os.Exit(1)
+			return nil, fmt.Errorf("Invalid status range format. There should be one dash (-) per range.")
 		}
 		start, err := strconv.Atoi(startAndEnd[0])
 		if err != nil {
-			fmt.Println("Error: invalid status range format. Expected an integer, got", startAndEnd[0])
-			os.Exit(1)
+			return nil, fmt.Errorf("Invalid status range format. Expected an integer, got %q", startAndEnd[0])
 		}
 		end, err := strconv.Atoi(startAndEnd[1])
 		if err != nil {
-			fmt.Println("Error: invalid status range format. Expected an integer, got", startAndEnd[1])
-			os.Exit(1)
+			return nil, fmt.Errorf("Invalid status range format. Expected an integer, got %q", startAndEnd[1])
 		}
 		statusRanges[i] = make([]int, 2)
 		statusRanges[i][0] = start
 		statusRanges[i][1] = end
 	}
-	return statusRanges
+
+	return statusRanges, nil
 }
 
 // filterResponses removes all sample responses with status codes outside the given

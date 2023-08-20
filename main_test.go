@@ -23,19 +23,38 @@ import (
 
 func TestParseStatusRanges(t *testing.T) {
 	tests := []struct {
-		str  string
-		want [][]int
+		input string
+		want  [][]int
 	}{
 		{"", nil},
 		{"200-299", [][]int{{200, 299}}},
 		{"200-299,400-499", [][]int{{200, 299}, {400, 499}}},
 		{"200-200", [][]int{{200, 200}}},
 	}
+
 	for _, test := range tests {
-		ans := parseStatusRanges(test.str)
-		if !reflect.DeepEqual(ans, test.want) {
-			t.Errorf("parseStatusRanges(%q) = %v, want %v", test.str, ans, test.want)
-		}
+		t.Run(test.input, func(t *testing.T) {
+			ans, err := parseStatusRanges(test.input)
+			if err != nil {
+				t.Error(err)
+				return
+			}
+			if !reflect.DeepEqual(ans, test.want) {
+				t.Errorf("parseStatusRanges(%q) = %v, want %v", test.input, ans, test.want)
+				return
+			}
+		})
+	}
+}
+
+func TestParseStatusRangesWithInvalidInput(t *testing.T) {
+	inputs := []string{"200-299-300", "a-299", "200-b", "200-", "-299", "200", "-"}
+	for _, input := range inputs {
+		t.Run(input, func(t *testing.T) {
+			if statusRanges, err := parseStatusRanges(input); err == nil {
+				t.Errorf("parseStatusRanges(%q) = (%v, nil), want non-nil error", input, statusRanges)
+			}
+		})
 	}
 }
 
