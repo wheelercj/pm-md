@@ -15,8 +15,10 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"reflect"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -148,15 +150,23 @@ func TestParseCollectionWithOldSchema(t *testing.T) {
 	}
 }
 
-func TestFilterResponses(t *testing.T) {
+func getCollection(t *testing.T) (*Collection, error) {
 	inputFilePath := "samples/calendar API.postman_collection.json"
 	jsonBytes, err := os.ReadFile(inputFilePath)
 	if err != nil {
-		t.Errorf("Failed to open %s", inputFilePath)
-		return
+		return nil, fmt.Errorf("Failed to open %s", inputFilePath)
 	}
 
 	collection, err := parseCollection(jsonBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	return collection, nil
+}
+
+func TestFilterResponses(t *testing.T) {
+	collection, err := getCollection(t)
 	if err != nil {
 		t.Error(err)
 		return
@@ -170,5 +180,38 @@ func TestFilterResponses(t *testing.T) {
 				return
 			}
 		}
+	}
+}
+
+func TestGetVersionWithoutVersionedRoutes(t *testing.T) {
+	collection, err := getCollection(t)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	if len(collection.Routes) == 0 {
+		t.Error("No routes to test")
+		return
+	}
+
+	for i, route := range collection.Routes {
+		if len(route.Request.Url.Path) == 0 {
+			t.Errorf("Request missing path: %v", route.Request)
+			return
+		}
+
+		// Delete any version number from the route.
+		maybeVersion := route.Request.Url.Path[0]
+		if strings.HasPrefix(maybeVersion, "v") {
+			maybeNumber := strings.TrimPrefix(maybeVersion, "v")
+			if _, err := strconv.Atoi(maybeNumber); err == nil {
+				collection.Routes[i].Request.Url.Path = route.Request.Url.Path[1:]
+			}
+		}
+	}
+
+	version, err := getVersion(collection.Routes)
+	if err == nil {
+		t.Errorf("getVersion returned (%q, nil), want non-nil error", version)
 	}
 }
