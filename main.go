@@ -132,10 +132,10 @@ func jsonToMdFile(jsonBytes []byte, statusRanges [][]int) (string, error) {
 			}
 			return s
 		},
-		"assumeSafeHtml": func(s string) template.HTML {
-			// This prevents HTML escaping. Never run this with untrusted input.
-			return template.HTML(s)
-		},
+		// "assumeSafeHtml": func(s string) template.HTML {
+		// 	// This prevents HTML escaping. Never run this with untrusted input.
+		// 	return template.HTML(s)
+		// },
 	}
 
 	tmplFileName := "collection.tmpl"
