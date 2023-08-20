@@ -106,3 +106,25 @@ func TestInvalidJsonToMdFile(t *testing.T) {
 		os.Remove(mdFileName)
 	}
 }
+
+func TestParseCollectionWithOldSchema(t *testing.T) {
+	inputFilePath := "samples/calendar API.postman_collection.json"
+	jsonBytes, err := os.ReadFile(inputFilePath)
+	if err != nil {
+		t.Errorf("Failed to open %s", inputFilePath)
+		return
+	}
+	jsonStr := string(jsonBytes)
+
+	v210Url := "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	v200Url := "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	if !strings.Contains(jsonStr, v210Url) {
+		t.Error("The given JSON doesn't contain the expected URL")
+		return
+	}
+	jsonStr = strings.Replace(jsonStr, v210Url, v200Url, 1)
+
+	if collection, err := parseCollection([]byte(jsonStr)); err == nil {
+		t.Errorf("want (nil, error), got a nil error and a non-nil collection: %v", *collection)
+	}
+}

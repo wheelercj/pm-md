@@ -159,8 +159,7 @@ func parseCollection(jsonBytes []byte) (*Collection, error) {
 		return nil, err
 	}
 	if collection.Info.Schema != "https://schema.getpostman.com/json/collection/v2.1.0/collection.json" {
-		fmt.Println("Error: unknown JSON schema. When exporting from Postman, export as Collection v2.1.0")
-		os.Exit(1)
+		return nil, fmt.Errorf("Unknown JSON schema. When exporting from Postman, export as Collection v2.1.0")
 	}
 
 	return &collection, nil
