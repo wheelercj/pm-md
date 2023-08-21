@@ -110,7 +110,7 @@ func main() {
 // jsonToMdFile converts JSON bytes into markdown, saves the markdown into a file, and
 // returns the new markdown file's name. The new file is guaranteed to not replace an
 // existing file. The file's name is based on the contents of the given JSON.
-func jsonToMdFile(jsonBytes []byte, statusRanges [][]int) (string, error) {
+func jsonToMdFile(jsonBytes []byte, statusRanges [][]int) (mdFileName string, err error) {
 	collection, err := parseCollection(jsonBytes)
 	if err != nil {
 		return "", err
@@ -119,10 +119,10 @@ func jsonToMdFile(jsonBytes []byte, statusRanges [][]int) (string, error) {
 	if v, err := getVersion(collection.Routes); err == nil {
 		collection.Info.Name += " " + v
 	}
-	mdFileName := CreateUniqueFileName(collection.Info.Name, ".md")
+	mdFileName = CreateUniqueFileName(collection.Info.Name, ".md")
 	mdFile, err := os.Create(mdFileName)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 	defer mdFile.Close()
 
@@ -145,11 +145,11 @@ func jsonToMdFile(jsonBytes []byte, statusRanges [][]int) (string, error) {
 	tmplFileName := "collection.tmpl"
 	tmpl, err := template.New(tmplFileName).Funcs(funcMap).Parse(tmplStr)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 	err = tmpl.Execute(mdFile, collection)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
 	return mdFileName, nil
