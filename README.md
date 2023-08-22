@@ -12,8 +12,8 @@ The result looks best when there is an example saved for each endpoint (after cl
 
 3 choices for how to download:
 
-* [download a zipped executable file](https://github.com/wheelercj/pm-md/releases), unzip it, and run the app with `./pm-md`
-* `go install github.com/wheelercj/pm-md@latest` and then `pm-md`
+* [download a zipped executable file](https://github.com/wheelercj/pm-md/releases), unzip it, and run the app with `./pm-md --help`
+* `go install github.com/wheelercj/pm-md@latest` and then `pm-md --help`
 * install from source following the instructions below
 
 ### install from source
@@ -24,7 +24,7 @@ These steps require [Go](https://go.dev/) to be installed.
 2. Open a terminal in the new folder.
 3. Run `go build` to create an executable file.
 4. Run `go install` to install the executable file. If you get an error message, you may need to [edit your PATH environment variable](https://go.dev/doc/tutorial/compile-install).
-5. Run the app with `pm-md`.
+5. Run the app with `pm-md --help`.
 
 If you install from source, the resulting markdown file's format can be customized by editing `collection.tmpl` using the types defined in `types.go` and the `template.FuncMap` defined in `main.go`. See the links under "developer resources" below for more details about templates. Use `go build` and `go install` after editing.
 
@@ -38,5 +38,6 @@ Here are some resources that were helpful when creating this app.
 * [JSON and Go — The Go Blog](https://go.dev/blog/json)
 * [the embed package — Go's standard library](https://pkg.go.dev/embed)
 * [How To Use Struct Tags in Go — DigitalOcean](https://www.digitalocean.com/community/tutorials/how-to-use-struct-tags-in-go)
+* [spf13/cobra](https://github.com/spf13/cobra)
 * [GoReleaser](https://goreleaser.com/)
 * [how to create a custom terminal command](https://wheelercj.github.io/notes/pages/20220320181252.html)

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package cmd
 
 import (
 	"fmt"
@@ -75,8 +75,8 @@ func TestJsonToMdFile(t *testing.T) {
 		return
 	}
 
-	inputFilePath := "samples/calendar API.postman_collection.json"
-	wantFilePath := "samples/calendar API v1.md"
+	inputFilePath := "../samples/calendar API.postman_collection.json"
+	wantFilePath := "../samples/calendar API v1.md"
 	jsonBytes, err := os.ReadFile(inputFilePath)
 	if err != nil {
 		t.Errorf("Failed to open %s", inputFilePath)
@@ -129,7 +129,7 @@ func TestInvalidJsonToMdFile(t *testing.T) {
 }
 
 func TestParseCollectionWithOldSchema(t *testing.T) {
-	inputFilePath := "samples/calendar API.postman_collection.json"
+	inputFilePath := "../samples/calendar API.postman_collection.json"
 	jsonBytes, err := os.ReadFile(inputFilePath)
 	if err != nil {
 		t.Errorf("Failed to open %s", inputFilePath)
@@ -151,7 +151,7 @@ func TestParseCollectionWithOldSchema(t *testing.T) {
 }
 
 func getCollection(t *testing.T) (*Collection, error) {
-	inputFilePath := "samples/calendar API.postman_collection.json"
+	inputFilePath := "../samples/calendar API.postman_collection.json"
 	jsonBytes, err := os.ReadFile(inputFilePath)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to open %s", inputFilePath)

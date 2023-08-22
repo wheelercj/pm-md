@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package cmd
 
 import (
 	"fmt"
@@ -73,8 +73,8 @@ func assertNoDiff(t *testing.T, ans, want, linesep string) {
 }
 
 func TestFileExists(t *testing.T) {
-	if !FileExists("LICENSE") {
-		t.Error("FileExists(\"LICENSE\") = false, want true")
+	if !FileExists("../LICENSE") {
+		t.Error("FileExists(\"../LICENSE\") = false, want true")
 	}
 }
 
@@ -88,8 +88,8 @@ func TestCreateUniqueFileName(t *testing.T) {
 	tests := []struct {
 		a, b, want string
 	}{
-		{"LICENSE", "", "LICENSE(1)"},
-		{"README", ".md", "README(1).md"},
+		{"../LICENSE", "", "../LICENSE(1)"},
+		{"../README", ".md", "../README(1).md"},
 		{"nonexistent file", ".txt", "nonexistent file.txt"},
 	}
 
@@ -111,7 +111,7 @@ func TestCreateUniqueFileNamePanic(t *testing.T) {
 	tests := []struct {
 		a, b string
 	}{
-		{"README", "md"},
+		{"../README", "md"},
 		{"nonexistent file", "."},
 		{"nonexistent file", "a"},
 	}
