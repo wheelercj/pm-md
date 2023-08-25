@@ -29,6 +29,7 @@ func TestParseStatusRanges(t *testing.T) {
 		want  [][]int
 	}{
 		{"", nil},
+		{"200", [][]int{{200, 200}}},
 		{"200-299", [][]int{{200, 299}}},
 		{"200-299,400-499", [][]int{{200, 299}, {400, 499}}},
 		{"200-200", [][]int{{200, 200}}},
@@ -50,7 +51,7 @@ func TestParseStatusRanges(t *testing.T) {
 }
 
 func TestParseStatusRangesWithInvalidInput(t *testing.T) {
-	inputs := []string{"200-299-300", "a-299", "200-b", "200-", "-299", "200", "-"}
+	inputs := []string{"200-299-300", "a-299", "200-b", "200-", "-299", "-", "a"}
 	for _, input := range inputs {
 		t.Run(input, func(t *testing.T) {
 			if statusRanges, err := parseStatusRanges(input); err == nil {

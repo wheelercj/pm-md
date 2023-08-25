@@ -79,7 +79,7 @@ func parseCollection(jsonBytes []byte) (*Collection, error) {
 
 // parseStatusRanges converts a string of status ranges to a slice of slices of
 // integers. The slice may be nil, but any inner slices each have two elements: the
-// start and end of the range. Example ranges: "200-299", "200-299,400-499", "200-200".
+// start and end of the range. Examples: "200", "200-299", "200-299,400-499", "200-200".
 func parseStatusRanges(statusesStr string) ([][]int, error) {
 	if len(statusesStr) == 0 {
 		return nil, nil
@@ -88,16 +88,19 @@ func parseStatusRanges(statusesStr string) ([][]int, error) {
 	statusRanges := make([][]int, len(statusRangeStrs))
 	for i, statusRangeStr := range statusRangeStrs {
 		startAndEnd := strings.Split(statusRangeStr, "-")
-		if len(startAndEnd) != 2 {
-			return nil, fmt.Errorf("Invalid status range format. There should be one dash (-) per range.")
+		if len(startAndEnd) > 2 {
+			return nil, fmt.Errorf("Invalid status format. There should be zero or one dashes in %s", statusRangeStr)
 		}
 		start, err := strconv.Atoi(startAndEnd[0])
 		if err != nil {
 			return nil, fmt.Errorf("Invalid status range format. Expected an integer, got %q", startAndEnd[0])
 		}
-		end, err := strconv.Atoi(startAndEnd[1])
-		if err != nil {
-			return nil, fmt.Errorf("Invalid status range format. Expected an integer, got %q", startAndEnd[1])
+		end := start
+		if len(startAndEnd) > 1 {
+			end, err = strconv.Atoi(startAndEnd[1])
+			if err != nil {
+				return nil, fmt.Errorf("Invalid status range format. Expected an integer, got %q", startAndEnd[1])
+			}
 		}
 		statusRanges[i] = make([]int, 2)
 		statusRanges[i][0] = start
