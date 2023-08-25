@@ -17,6 +17,6 @@
 {{ .Name }}
 
 ```{{ .Language }}
-{{ allowJsonOrPlaintext .Body }}
+{{ if .Body }}{{ allowJsonOrPlaintext .Body }}{{ else }}(no response body){{ end }}
 ```
 {{ end }}{{ end }}
