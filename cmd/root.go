@@ -24,6 +24,11 @@ import (
 
 const short = "Convert a Postman collection to markdown documentation"
 const jsonHelp = "You can get a JSON file from Postman by exporting a collection as a v2.1.0 collection"
+const github = "More help available here: github.com/wheelercj/pm-md"
+const version = "v0.0.6 (you can check for updates here: https://github.com/wheelercj/pm-md/releases)"
+const example = `pm-md collection.json
+pm-md collection.json --statuses=200
+pm-md collection.json --statuses=200-299,400-499`
 
 var ShowResponseNames bool
 var Statuses string
@@ -31,9 +36,9 @@ var Statuses string
 var rootCmd = &cobra.Command{
 	Use:     "pm-md postman_export.json",
 	Short:   short,
-	Long:    fmt.Sprintf("%s\n\n%s", short, jsonHelp),
-	Example: "pm-md collection.json\npm-md collection.json --statuses=200\npm-md collection.json --statuses=200-299,400-499",
-	Version: "v0.0.6 (you can check for updates here: https://github.com/wheelercj/pm-md/releases)",
+	Long:    fmt.Sprintf("%s\n\n%s.\n%s", short, jsonHelp, github),
+	Example: example,
+	Version: version,
 	Args: func(cmd *cobra.Command, args []string) error {
 		if err := cobra.ExactArgs(1)(cmd, args); err != nil {
 			return err
