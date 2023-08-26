@@ -51,21 +51,21 @@ var rootCmd = &cobra.Command{
 
 		statusRanges, err := parseStatusRanges(Statuses)
 		if err != nil {
-			fmt.Print(err)
+			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
 
 		jsonBytes, err := os.ReadFile(jsonFilePath)
 		if err != nil {
-			fmt.Println("Error:", err)
+			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
 
 		if mdFileName, err := jsonToMdFile(jsonBytes, statusRanges, ShowResponseNames); err != nil {
-			fmt.Println("Error:", err)
+			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		} else {
-			fmt.Println("Created", mdFileName)
+			fmt.Fprintln(os.Stderr, "Created", mdFileName)
 		}
 	},
 }
