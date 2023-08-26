@@ -69,40 +69,15 @@ func TestParseEmptyCollection(t *testing.T) {
 }
 
 func TestJsonToMdFile(t *testing.T) {
-	// Skip this test if unique file name creation isn't working.
-	TestCreateUniqueFileName(t)
-	TestCreateUniqueFileNamePanic(t)
-	if t.Failed() {
-		return
-	}
-
 	inputFilePath := "../samples/calendar API.postman_collection.json"
 	wantFilePath := "../samples/calendar API v1.md"
-	jsonBytes, err := os.ReadFile(inputFilePath)
-	if err != nil {
-		t.Errorf("Failed to open %s", inputFilePath)
-		return
-	}
-	mdFileName, err := jsonToMdFile(jsonBytes, nil)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	defer os.Remove(mdFileName)
-	ansBytes, err := os.ReadFile(mdFileName)
-	if err != nil {
-		t.Errorf("Failed to open %s", mdFileName)
-		return
-	}
-	wantBytes, err := os.ReadFile(wantFilePath)
-	if err != nil {
-		t.Errorf("Failed to open %s", wantFilePath)
-		return
-	}
-	ans := strings.ReplaceAll(string(ansBytes), "\r\n", "\n")
-	want := strings.ReplaceAll(string(wantBytes), "\r\n", "\n")
+	assertJsonToMdFileNoDiff(t, inputFilePath, wantFilePath, false)
+}
 
-	assertNoDiff(t, ans, want, "\n")
+func TestJsonToMdFileWithResponseNames(t *testing.T) {
+	inputFilePath := "../samples/calendar API.postman_collection.json"
+	wantFilePath := "../samples/calendar API v1 with response names.md"
+	assertJsonToMdFileNoDiff(t, inputFilePath, wantFilePath, true)
 }
 
 func TestInvalidJsonToMdFile(t *testing.T) {
@@ -122,7 +97,7 @@ func TestInvalidJsonToMdFile(t *testing.T) {
 				"_exporter_id": "23363106"
 			},
 	`)
-	mdFileName, err := jsonToMdFile(invalidJson, nil)
+	mdFileName, err := jsonToMdFile(invalidJson, nil, false)
 	if err == nil {
 		t.Error("Error expected")
 		os.Remove(mdFileName)
@@ -173,7 +148,7 @@ func TestFilterResponses(t *testing.T) {
 		return
 	}
 
-	filterResponses(collection, [][]int{{200, 200}})
+	filterResponsesByStatus(collection, [][]int{{200, 200}})
 	for _, route := range collection.Routes {
 		for _, response := range route.Responses {
 			if response.Code != 200 {

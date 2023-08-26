@@ -13,9 +13,9 @@
 ```
 {{ end }}{{ range .Responses }}
 ### sample response (status: {{ .Code }} {{ .Status }})
-
+{{ if .Name }}
 {{ .Name }}
-
+{{ end }}
 ```{{ .Language }}
 {{ if .Body }}{{ allowJsonOrPlaintext .Body }}{{ else }}(no response body){{ end }}
 ```

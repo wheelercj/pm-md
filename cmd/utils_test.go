@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"reflect"
 	"strings"
 	"testing"
@@ -70,6 +71,43 @@ func assertNoDiff(t *testing.T, ans, want, linesep string) {
 		return
 	}
 	t.Errorf("The actual and expected strings don't match for an unknown reason")
+}
+
+// assertJsonToMdFileNoDiff converts JSON to markdown and asserts the resulting markdown
+// is the same as a given example.
+func assertJsonToMdFileNoDiff(t *testing.T, inputJsonFilePath, wantMdFilePath string, showResponseNames bool) {
+	// Skip the test if unique file name creation isn't working correctly.
+	TestCreateUniqueFileName(t)
+	TestCreateUniqueFileNamePanic(t)
+	if t.Failed() {
+		return
+	}
+
+	jsonBytes, err := os.ReadFile(inputJsonFilePath)
+	if err != nil {
+		t.Errorf("Failed to open %s", inputJsonFilePath)
+		return
+	}
+	mdFileName, err := jsonToMdFile(jsonBytes, nil, showResponseNames)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer os.Remove(mdFileName)
+	ansBytes, err := os.ReadFile(mdFileName)
+	if err != nil {
+		t.Errorf("Failed to open %s", mdFileName)
+		return
+	}
+	wantBytes, err := os.ReadFile(wantMdFilePath)
+	if err != nil {
+		t.Errorf("Failed to open %s", wantMdFilePath)
+		return
+	}
+	ans := strings.ReplaceAll(string(ansBytes), "\r\n", "\n")
+	want := strings.ReplaceAll(string(wantBytes), "\r\n", "\n")
+
+	assertNoDiff(t, ans, want, "\n")
 }
 
 func TestFileExists(t *testing.T) {

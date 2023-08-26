@@ -25,6 +25,7 @@ import (
 const short = "Convert a Postman collection to markdown documentation"
 const jsonHelp = "You can get a JSON file from Postman by exporting a collection as a v2.1.0 collection"
 
+var ShowResponseNames bool
 var Statuses string
 
 var rootCmd = &cobra.Command{
@@ -46,6 +47,7 @@ var rootCmd = &cobra.Command{
 		jsonFilePath := args[0]
 		// fmt.Println("json file path:", jsonFilePath)
 		// fmt.Printf("statuses: %q\n", Statuses)
+		// fmt.Printf("show response names: %q\n", ShowResponseNames)
 
 		statusRanges, err := parseStatusRanges(Statuses)
 		if err != nil {
@@ -59,7 +61,7 @@ var rootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		if mdFileName, err := jsonToMdFile(jsonBytes, statusRanges); err != nil {
+		if mdFileName, err := jsonToMdFile(jsonBytes, statusRanges, ShowResponseNames); err != nil {
 			fmt.Println("Error:", err)
 			os.Exit(1)
 		} else {
@@ -84,5 +86,12 @@ func init() {
 		"s",
 		"",
 		"Include only the sample responses with status codes in given range(s)",
+	)
+	rootCmd.Flags().BoolVarP(
+		&ShowResponseNames,
+		"show-response-names",
+		"n",
+		false,
+		"Include the names of sample responses in the output",
 	)
 }

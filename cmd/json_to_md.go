@@ -18,12 +18,15 @@ var tmplStr string
 // jsonToMdFile converts JSON bytes into markdown, saves the markdown into a file, and
 // returns the new markdown file's name. The new file is guaranteed to not replace an
 // existing file. The file's name is based on the contents of the given JSON.
-func jsonToMdFile(jsonBytes []byte, statusRanges [][]int) (mdFileName string, err error) {
+func jsonToMdFile(jsonBytes []byte, statusRanges [][]int, showResponseNames bool) (mdFileName string, err error) {
 	collection, err := parseCollection(jsonBytes)
 	if err != nil {
 		return "", err
 	}
-	filterResponses(collection, statusRanges)
+	filterResponsesByStatus(collection, statusRanges)
+	if !showResponseNames {
+		clearResponseNames(collection)
+	}
 	if v, err := getVersion(collection.Routes); err == nil {
 		collection.Info.Name += " " + v
 	}
@@ -110,9 +113,9 @@ func parseStatusRanges(statusesStr string) ([][]int, error) {
 	return statusRanges, nil
 }
 
-// filterResponses removes all sample responses with status codes outside the given
-// range(s). If no status ranges are given, the collection remains unchanged.
-func filterResponses(collection *Collection, statusRanges [][]int) {
+// filterResponsesByStatus removes all sample responses with status codes outside the
+// given range(s). If no status ranges are given, the collection remains unchanged.
+func filterResponsesByStatus(collection *Collection, statusRanges [][]int) {
 	if statusRanges == nil || len(statusRanges) == 0 {
 		return
 	}
@@ -130,6 +133,16 @@ func filterResponses(collection *Collection, statusRanges [][]int) {
 				route.Responses = slices.Delete(route.Responses, j, j+1)
 			}
 			collection.Routes[i] = route
+		}
+	}
+}
+
+// clearResponseNames changes each response name to an empty string. This is helpful
+// when response names are not wanted in the output.
+func clearResponseNames(collection *Collection) {
+	for i := range collection.Routes {
+		for j := range collection.Routes[i].Responses {
+			collection.Routes[i].Responses[j].Name = ""
 		}
 	}
 }
