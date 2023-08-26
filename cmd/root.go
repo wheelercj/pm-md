@@ -35,7 +35,7 @@ var rootCmd = &cobra.Command{
 	Example: "pm-md collection.json\npm-md collection.json --statuses=200\npm-md collection.json --statuses=200-299,400-499",
 	Version: "v0.0.6 (you can check for updates here: https://github.com/wheelercj/pm-md/releases)",
 	Args: func(cmd *cobra.Command, args []string) error {
-		if err := cobra.MinimumNArgs(1)(cmd, args); err != nil {
+		if err := cobra.ExactArgs(1)(cmd, args); err != nil {
 			return err
 		}
 		if !strings.HasSuffix(strings.ToLower(args[0]), ".json") {
