@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"os"
@@ -59,4 +60,16 @@ func ConfirmReplaceExistingFile(fileName string) error {
 	}
 
 	return nil
+}
+
+func ScanStdin() ([]byte, error) {
+	lines := make([]string, 0)
+	scanner := bufio.NewScanner(os.Stdin)
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, fmt.Errorf("stdin scan error: %s", err)
+	}
+	return []byte(strings.Join(lines, "\n")), nil
 }

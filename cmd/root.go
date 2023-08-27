@@ -47,8 +47,8 @@ var rootCmd = &cobra.Command{
 		if err := cobra.MaximumNArgs(2)(cmd, args); err != nil {
 			return err
 		}
-		if !strings.HasSuffix(strings.ToLower(args[0]), ".json") {
-			return fmt.Errorf("%q does not end with .json", args[0])
+		if args[0] != "-" && !strings.HasSuffix(strings.ToLower(args[0]), ".json") {
+			return fmt.Errorf("%q is not \"-\" and does not end with \".json\"", args[0])
 		}
 		return nil
 	},
@@ -69,7 +69,12 @@ var rootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		jsonBytes, err := os.ReadFile(jsonFilePath)
+		var jsonBytes []byte
+		if jsonFilePath == "-" {
+			jsonBytes, err = ScanStdin()
+		} else {
+			jsonBytes, err = os.ReadFile(jsonFilePath)
+		}
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
