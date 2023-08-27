@@ -1,5 +1,7 @@
 # Postman to Markdown
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/wheelercj/pm-md.svg)](https://pkg.go.dev/github.com/wheelercj/pm-md)
+
 Convert a Postman collection to markdown documentation.
 
 [sample result](samples/calendar%20API%20v1.md)
