@@ -43,3 +43,4 @@ Here are some resources that were helpful when creating this app.
 * [spf13/cobra](https://github.com/spf13/cobra)
 * [GoReleaser](https://goreleaser.com/)
 * [how to create a custom terminal command](https://wheelercj.github.io/notes/pages/20220320181252.html)
+* [Command Line Interface Guidelines](https://clig.dev/) by Prasad et al.
