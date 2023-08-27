@@ -12,8 +12,8 @@ import (
 	"strings"
 )
 
-//go:embed collection.tmpl
-var tmplStr string
+//go:embed collection_default.tmpl
+var defaultTmplStr string
 
 // jsonToMdFile converts JSON bytes to markdown, prints the markdown to a file or
 // stdout, and returns the destination's name. If the destination name is "-", output
@@ -68,8 +68,7 @@ func jsonToMdFile(jsonBytes []byte, destName string, statusRanges [][]int, showR
 		// },
 	}
 
-	tmplFileName := "collection.tmpl"
-	tmpl, err := template.New(tmplFileName).Funcs(funcMap).Parse(tmplStr)
+	tmpl, err := template.New("collection_default.tmpl").Funcs(funcMap).Parse(defaultTmplStr)
 	if err != nil {
 		return "", fmt.Errorf("*Template.Parse: %s", err)
 	}
