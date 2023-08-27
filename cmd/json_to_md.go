@@ -35,7 +35,7 @@ func jsonToMdFile(jsonBytes []byte, destName string, statusRanges [][]int, showR
 
 	var destFile *os.File
 	if len(destName) == 0 {
-		destName = CreateUniqueFileName(collection.Info.Name, ".md")
+		destName = CreateUniqueFileName(FormatFileName(collection.Info.Name), ".md")
 	} else if destName == "-" {
 		destFile = os.Stdout
 	} else if FileExists(destName) {

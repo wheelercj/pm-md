@@ -43,6 +43,27 @@ func CreateUniqueFileName(fileName, extension string) string {
 	return uniqueFileName
 }
 
+// FormatFileName takes a file name excluding any file extension and changes it, if
+// necessary, to be compatible with all major platforms. Each invalid file name
+// character is replaced with a dash, and characters that a file name cannot start or
+// end with are trimmed. The invalid invalid characters are "#<>$+%&/\\*|{}!?`'\"=: @",
+// and the invalid start or end characters are " ._-".
+func FormatFileName(fileName string) string {
+	invalidChars := "#<>$+%&/\\*|{}!?`'\"=: @"
+	invalidEdgeChars := " ._-"
+
+	result := make([]byte, len(fileName))
+	for i := range fileName {
+		if strings.Contains(invalidChars, string(fileName[i])) {
+			result[i] = '-'
+		} else {
+			result[i] = fileName[i]
+		}
+	}
+
+	return strings.Trim(string(result), invalidEdgeChars)
+}
+
 // ConfirmReplaceExistingFile asks the user to confirm whether they want one of their
 // existing files to be replaced. This function does NOT check whether a file exists.
 func ConfirmReplaceExistingFile(fileName string) error {

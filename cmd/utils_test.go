@@ -125,8 +125,8 @@ func TestFileExists(t *testing.T) {
 }
 
 func TestFileDoesNotExist(t *testing.T) {
-	if FileExists("nonexistent file") {
-		t.Error("FileExists(\"nonexistent file\") = true, want false")
+	if FileExists("nonexistent-file") {
+		t.Error("FileExists(\"nonexistent-file\") = true, want false")
 	}
 }
 
@@ -136,7 +136,7 @@ func TestCreateUniqueFileName(t *testing.T) {
 	}{
 		{"../LICENSE", "", "../LICENSE(1)"},
 		{"../README", ".md", "../README(1).md"},
-		{"nonexistent file", ".txt", "nonexistent file.txt"},
+		{"nonexistent-file", ".txt", "nonexistent-file.txt"},
 	}
 
 	for _, test := range tests {
@@ -158,14 +158,33 @@ func TestCreateUniqueFileNamePanic(t *testing.T) {
 		a, b string
 	}{
 		{"../README", "md"},
-		{"nonexistent file", "."},
-		{"nonexistent file", "a"},
+		{"nonexistent-file", "."},
+		{"nonexistent-file", "a"},
 	}
 
 	for _, test := range tests {
 		testName := fmt.Sprintf("%q,%q", test.a, test.b)
 		t.Run(testName, func(t *testing.T) {
 			assertPanic(t, CreateUniqueFileName, test.a, test.b)
+		})
+	}
+}
+
+func TestFormatFileName(t *testing.T) {
+	tests := []struct {
+		name, input, want string
+	}{
+		{"spaces", "file name with spaces", "file-name-with-spaces"},
+		{"special characters", "lots-of-#<>$+%&/\\*|{}!?`'\"=:@-special-characters", "lots-of-----------------------special-characters"},
+		{"invalid start and end", ".  invalid-start-and-end__--", "invalid-start-and-end"},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ans := FormatFileName(test.input)
+			if ans != test.want {
+				t.Errorf("FormatFileName(%q) = %q, want %q", test.input, ans, test.want)
+			}
 		})
 	}
 }
