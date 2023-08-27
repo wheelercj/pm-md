@@ -94,3 +94,19 @@ func ScanStdin() ([]byte, error) {
 	}
 	return []byte(strings.Join(lines, "\n")), nil
 }
+
+func exportDefaultTemplate() {
+	name := CreateUniqueFileName("collection", ".tmpl")
+	file, err := os.Create(name)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, fmt.Errorf("os.Create: %s", err))
+		os.Exit(1)
+	}
+	defer file.Close()
+	_, err = file.Write([]byte(defaultTmplStr))
+	if err != nil {
+		fmt.Fprintln(os.Stderr, fmt.Errorf("file.Write: %s", err))
+		os.Exit(1)
+	}
+	fmt.Fprintln(os.Stderr, "Created", name)
+}

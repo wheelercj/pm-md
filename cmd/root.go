@@ -31,16 +31,20 @@ pm-md collection.json documentation.md
 pm-md collection.json -
 pm-md collection.json --statuses=200-299,400-499`
 
-var ShowResponseNames bool
 var Statuses string
+var ShowResponseNames bool
+var GetTemplate bool
 
 var rootCmd = &cobra.Command{
-	Use:     "pm-md postman_export.json [output.md]",
+	Use:     "pm-md [postman_export.json [output.md]]",
 	Short:   short,
 	Long:    fmt.Sprintf("%s\n\n%s.\n%s", short, jsonHelp, github),
 	Example: example,
 	Version: version,
 	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) == 0 && GetTemplate {
+			return nil
+		}
 		if err := cobra.MinimumNArgs(1)(cmd, args); err != nil {
 			return err
 		}
@@ -53,15 +57,22 @@ var rootCmd = &cobra.Command{
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
+		if GetTemplate {
+			exportDefaultTemplate()
+			if len(args) == 0 {
+				os.Exit(0)
+			}
+		}
 		jsonFilePath := args[0]
 		var destName string
 		if len(args) == 2 {
 			destName = args[1]
 		}
-		// fmt.Println("json file path:", jsonFilePath)
-		// fmt.Println("output destination:", destName)
+		// fmt.Printf("json file path: %q\n", jsonFilePath)
+		// fmt.Printf("output destination: %q\n", destName)
 		// fmt.Printf("statuses: %q\n", Statuses)
-		// fmt.Printf("show response names: %q\n", ShowResponseNames)
+		// fmt.Println("show response names:", ShowResponseNames)
+		// fmt.Println("get template:", GetTemplate)
 
 		statusRanges, err := parseStatusRanges(Statuses)
 		if err != nil {
@@ -112,5 +123,11 @@ func init() {
 		"n",
 		false,
 		"Include the names of sample responses in the output",
+	)
+	rootCmd.Flags().BoolVar(
+		&GetTemplate,
+		"get-template",
+		false,
+		"Creates a file of the default template for customization",
 	)
 }

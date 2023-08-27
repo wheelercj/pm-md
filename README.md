@@ -40,6 +40,7 @@ If you install from source, the resulting markdown file's format can be customiz
 * `pm-md - -` receives JSON from stdin and returns markdown to stdout, such as with `cat collection.json | pm-md - -`.
 * `pm-md - out.md` receives JSON from stdin and saves markdown to out.md.
 * `pm-md api.json --show-response-names` reads api.json and saves markdown with response titles to a new file.
+* `pm-md --get-template` creates a new file of the default template so you can more easily customize pm-md's output.
 
 ## developer resources
 
