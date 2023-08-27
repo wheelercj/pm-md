@@ -30,6 +30,17 @@ These steps require [Go](https://go.dev/) to be installed.
 
 If you install from source, the resulting markdown file's format can be customized by editing `collection.tmpl` using the types defined in `types.go` and the `template.FuncMap` defined in `main.go`. See the links under "developer resources" below for more details about templates. Use `go build` and `go install` after editing.
 
+## examples
+
+* `pm-md collection.json documentation.md` reads collection.json and saves markdown to documentation.md.
+* `pm-md collection.json` reads collection.json and saves markdown to a new file with a unique name based on the collection's name. This will NEVER replace an existing file.
+* `pm-md collection.json --statuses=200` does the same as the previous example but does not include any sample responses except those with a status code of 200.
+* `pm-md collection.json --statuses=200-299,400-499` does not include any sample responses except those with a status code within the ranges 200-299 and 400-499 (inclusive).
+* `pm-md collection.json -` reads collection.json and returns markdown to stdout.
+* `pm-md - -` receives JSON from stdin and returns markdown to stdout, such as with `cat collection.json | pm-md - -`.
+* `pm-md - out.md` receives JSON from stdin and saves markdown to out.md.
+* `pm-md api.json --show-response-names` reads api.json and saves markdown with response titles to a new file.
+
 ## developer resources
 
 Here are some resources that were helpful when creating this app.
