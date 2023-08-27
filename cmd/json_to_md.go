@@ -15,13 +15,15 @@ import (
 //go:embed collection.tmpl
 var tmplStr string
 
-// jsonToMdFile converts JSON bytes into markdown, saves the markdown into a file, and
-// returns the new markdown file's name. The new file is guaranteed to not replace an
-// existing file. The file's name is based on the contents of the given JSON.
-func jsonToMdFile(jsonBytes []byte, statusRanges [][]int, showResponseNames bool) (mdFileName string, err error) {
+// jsonToMdFile converts JSON bytes to markdown, prints the markdown to a file or
+// stdout, and returns the destination's name. If the destination name is "-", output
+// goes to stdout. If the destination's name is empty, a file is created with a unique
+// name based on the given JSON. Only an empty destination name will be changed from
+// what is given before being returned.
+func jsonToMdFile(jsonBytes []byte, destName string, statusRanges [][]int, showResponseNames bool) (string, error) {
 	collection, err := parseCollection(jsonBytes)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("parseCollection: %s", err)
 	}
 	filterResponsesByStatus(collection, statusRanges)
 	if !showResponseNames {
@@ -30,12 +32,25 @@ func jsonToMdFile(jsonBytes []byte, statusRanges [][]int, showResponseNames bool
 	if v, err := getVersion(collection.Routes); err == nil {
 		collection.Info.Name += " " + v
 	}
-	mdFileName = CreateUniqueFileName(collection.Info.Name, ".md")
-	mdFile, err := os.Create(mdFileName)
-	if err != nil {
-		return "", err
+
+	var destFile *os.File
+	if len(destName) == 0 {
+		destName = CreateUniqueFileName(collection.Info.Name, ".md")
+	} else if destName == "-" {
+		destFile = os.Stdout
+	} else if FileExists(destName) {
+		if err := ConfirmReplaceExistingFile(destName); err != nil {
+			return "", fmt.Errorf("ConfirmReplaceExistingFile: %s", err)
+		}
 	}
-	defer mdFile.Close()
+
+	if destFile == nil {
+		destFile, err = os.Create(destName)
+		if err != nil {
+			return "", fmt.Errorf("os.Create: %s", err)
+		}
+		defer destFile.Close()
+	}
 
 	funcMap := template.FuncMap{
 		"join": func(elems []string, sep string) string {
@@ -56,14 +71,14 @@ func jsonToMdFile(jsonBytes []byte, statusRanges [][]int, showResponseNames bool
 	tmplFileName := "collection.tmpl"
 	tmpl, err := template.New(tmplFileName).Funcs(funcMap).Parse(tmplStr)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("*Template.Parse: %s", err)
 	}
-	err = tmpl.Execute(mdFile, collection)
+	err = tmpl.Execute(destFile, collection)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("tmpl.Execute: %s", err)
 	}
 
-	return mdFileName, nil
+	return destName, nil
 }
 
 // parseCollection converts a collection from a slice of bytes of JSON to a Collection

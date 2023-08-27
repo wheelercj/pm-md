@@ -27,20 +27,24 @@ const jsonHelp = "You can get a JSON file from Postman by exporting a collection
 const github = "More help available here: github.com/wheelercj/pm-md"
 const version = "v0.0.6 (you can check for updates here: https://github.com/wheelercj/pm-md/releases)"
 const example = `pm-md collection.json
-pm-md collection.json --statuses=200
+pm-md collection.json documentation.md
+pm-md collection.json -
 pm-md collection.json --statuses=200-299,400-499`
 
 var ShowResponseNames bool
 var Statuses string
 
 var rootCmd = &cobra.Command{
-	Use:     "pm-md postman_export.json",
+	Use:     "pm-md postman_export.json [output.md]",
 	Short:   short,
 	Long:    fmt.Sprintf("%s\n\n%s.\n%s", short, jsonHelp, github),
 	Example: example,
 	Version: version,
 	Args: func(cmd *cobra.Command, args []string) error {
-		if err := cobra.ExactArgs(1)(cmd, args); err != nil {
+		if err := cobra.MinimumNArgs(1)(cmd, args); err != nil {
+			return err
+		}
+		if err := cobra.MaximumNArgs(2)(cmd, args); err != nil {
 			return err
 		}
 		if !strings.HasSuffix(strings.ToLower(args[0]), ".json") {
@@ -50,7 +54,12 @@ var rootCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		jsonFilePath := args[0]
+		var destName string
+		if len(args) == 2 {
+			destName = args[1]
+		}
 		// fmt.Println("json file path:", jsonFilePath)
+		// fmt.Println("output destination:", destName)
 		// fmt.Printf("statuses: %q\n", Statuses)
 		// fmt.Printf("show response names: %q\n", ShowResponseNames)
 
@@ -66,11 +75,11 @@ var rootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		if mdFileName, err := jsonToMdFile(jsonBytes, statusRanges, ShowResponseNames); err != nil {
+		if destName, err := jsonToMdFile(jsonBytes, destName, statusRanges, ShowResponseNames); err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
-		} else {
-			fmt.Fprintln(os.Stderr, "Created", mdFileName)
+		} else if destName != "-" {
+			fmt.Fprintln(os.Stderr, "Created", destName)
 		}
 	},
 }

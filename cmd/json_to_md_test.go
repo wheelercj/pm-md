@@ -71,13 +71,19 @@ func TestParseEmptyCollection(t *testing.T) {
 func TestJsonToMdFile(t *testing.T) {
 	inputFilePath := "../samples/calendar API.postman_collection.json"
 	wantFilePath := "../samples/calendar API v1.md"
-	assertJsonToMdFileNoDiff(t, inputFilePath, wantFilePath, false)
+	assertJsonToMdFileNoDiff(t, inputFilePath, wantFilePath, false, true)
 }
 
 func TestJsonToMdFileWithResponseNames(t *testing.T) {
 	inputFilePath := "../samples/calendar API.postman_collection.json"
 	wantFilePath := "../samples/calendar API v1 with response names.md"
-	assertJsonToMdFileNoDiff(t, inputFilePath, wantFilePath, true)
+	assertJsonToMdFileNoDiff(t, inputFilePath, wantFilePath, true, true)
+}
+
+func TestJsonToMdFileWithCustomOutputFileName(t *testing.T) {
+	inputFilePath := "../samples/calendar API.postman_collection.json"
+	customOutputFileName := "custom file name for testing.md"
+	assertJsonToMdFileNoDiff(t, inputFilePath, customOutputFileName, true, false)
 }
 
 func TestInvalidJsonToMdFile(t *testing.T) {
@@ -97,10 +103,12 @@ func TestInvalidJsonToMdFile(t *testing.T) {
 				"_exporter_id": "23363106"
 			},
 	`)
-	mdFileName, err := jsonToMdFile(invalidJson, nil, false)
+	destName, err := jsonToMdFile(invalidJson, "-", nil, false)
 	if err == nil {
 		t.Error("Error expected")
-		os.Remove(mdFileName)
+		if destName != "-" {
+			t.Errorf("The destination name should not have changed from \"-\" to %q", destName)
+		}
 	}
 }
 

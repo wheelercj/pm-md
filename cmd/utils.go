@@ -41,3 +41,22 @@ func CreateUniqueFileName(fileName, extension string) string {
 	}
 	return uniqueFileName
 }
+
+// ConfirmReplaceExistingFile asks the user to confirm whether they want one of their
+// existing files to be replaced. This function does NOT check whether a file exists.
+func ConfirmReplaceExistingFile(fileName string) error {
+	fmt.Printf("File %q already exists. Replace? (y/n) ", fileName)
+	var choice string
+	_, err := fmt.Scan(&choice)
+	if err != nil {
+		return err
+	}
+	choice = strings.ToLower(choice)
+	if choice != "y" && choice != "n" {
+		return fmt.Errorf("Invalid choice. Please choose y or n")
+	} else if choice == "n" {
+		return fmt.Errorf("Canceled")
+	}
+
+	return nil
+}

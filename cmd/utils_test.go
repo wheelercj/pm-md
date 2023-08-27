@@ -75,33 +75,41 @@ func assertNoDiff(t *testing.T, ans, want, linesep string) {
 
 // assertJsonToMdFileNoDiff converts JSON to markdown and asserts the resulting markdown
 // is the same as a given example.
-func assertJsonToMdFileNoDiff(t *testing.T, inputJsonFilePath, wantMdFilePath string, showResponseNames bool) {
+func assertJsonToMdFileNoDiff(t *testing.T, inputJsonFilePath, mdFilePath string, showResponseNames, generateFileName bool) {
 	// Skip the test if unique file name creation isn't working correctly.
 	TestCreateUniqueFileName(t)
 	TestCreateUniqueFileNamePanic(t)
 	if t.Failed() {
 		return
 	}
+	if mdFilePath == "-" {
+		t.Error("This test cannot use stdout")
+		return
+	}
 
 	jsonBytes, err := os.ReadFile(inputJsonFilePath)
 	if err != nil {
-		t.Errorf("Failed to open %s", inputJsonFilePath)
+		t.Errorf("Failed to open %q", inputJsonFilePath)
 		return
 	}
-	mdFileName, err := jsonToMdFile(jsonBytes, nil, showResponseNames)
+	if generateFileName {
+		mdFilePath, err = jsonToMdFile(jsonBytes, "", nil, showResponseNames)
+	} else {
+		mdFilePath, err = jsonToMdFile(jsonBytes, mdFilePath, nil, showResponseNames)
+	}
 	if err != nil {
-		t.Error(err)
+		t.Errorf("jsonToMdFile: %s", err)
 		return
 	}
-	defer os.Remove(mdFileName)
-	ansBytes, err := os.ReadFile(mdFileName)
+	defer os.Remove(mdFilePath)
+	ansBytes, err := os.ReadFile(mdFilePath)
 	if err != nil {
-		t.Errorf("Failed to open %s", mdFileName)
+		t.Errorf("Failed to open %q", mdFilePath)
 		return
 	}
-	wantBytes, err := os.ReadFile(wantMdFilePath)
+	wantBytes, err := os.ReadFile(mdFilePath)
 	if err != nil {
-		t.Errorf("Failed to open %s", wantMdFilePath)
+		t.Errorf("Failed to open %q", mdFilePath)
 		return
 	}
 	ans := strings.ReplaceAll(string(ansBytes), "\r\n", "\n")
