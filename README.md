@@ -4,15 +4,9 @@
 
 Convert a Postman collection to markdown documentation.
 
-[sample result](samples/calendar%20API%20v1.md)
+[sample result](samples/calendar-API-v1.md)
 
-You can also customize the output by creating a template. See the "custom templates" section below for more details.
-
-The result looks best when there is an example saved for each endpoint (after clicking "Send" in Postman, a "Save as Example" button appears).
-
-Here's how to export a collection from Postman (choose the v2.1.0 export option):
-
-![gif showing how to export from postman](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYzFnb2JicjN6czk3dTJqcjg5Zm1yMjVtOXZ4cGVzd2d6YjFuYm5tdyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/1xp8s0yXApAYtF1c1q/giphy.gif)
+**Template-driven**: you can easily customize the output by editing the template. See the "custom templates" section below for more details.
 
 ## download
 
@@ -45,14 +39,25 @@ These steps require [Go](https://go.dev/) to be installed.
 
 ### custom templates
 
+Easily customize the output by editing the template.
+
 * `pm-md --get-template` creates a new file of the default template as an easier starting point for customization.
-* `pm-md api.json --template=custom.tmpl` reads api.json and saves markdown formatted using the custom template file custom.tmpl into a new file. In a template, you can use the variables and functions defined in [types.go](cmd/types.go). Sometimes it's helpful to look at the JSON exported from Postman to understand the variables. These template docs might also be helpful:
+* `pm-md api.json --template=custom.tmpl` reads api.json and saves text formatted using the custom template file custom.tmpl to a new file.
+
+In a template, you can use the variables and functions defined in [types.go](cmd/types.go). Sometimes it's helpful to look at the JSON exported from Postman to understand the variables. These template docs might also be helpful:
+
   * [How To Use Templates in Go — DigitalOcean](https://www.digitalocean.com/community/tutorials/how-to-use-templates-in-go#step-4-writing-a-template)
   * [the template package — Go's standard library](https://pkg.go.dev/text/template)
 
-## developer resources
+## tips
 
-Here are some resources that were helpful when creating this app.
+The result looks best when there is an example saved for each endpoint (after clicking "Send" in Postman, a "Save as Example" button appears).
+
+Here's how to export a collection from Postman (choose the v2.1.0 export option):
+
+![gif showing how to export from postman](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYzFnb2JicjN6czk3dTJqcjg5Zm1yMjVtOXZ4cGVzd2d6YjFuYm5tdyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/1xp8s0yXApAYtF1c1q/giphy.gif)
+
+## developer resources
 
 * [intro to Go](https://wheelercj.github.io/notes/pages/20221122173910.html)
 * [JSON and Go — The Go Blog](https://go.dev/blog/json)
