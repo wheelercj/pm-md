@@ -343,3 +343,21 @@ func TestGetDestFile(t *testing.T) {
 		})
 	}
 }
+
+func TestGetDestFileWithEmptyNames(t *testing.T) {
+	wantDestName := "collection.md"
+	destFile, destName, err := getDestFile("", "")
+	if err != nil || destName != wantDestName || destFile == nil {
+		t.Errorf("getDestFile(\"\", \"\") = (%p, %q, %v), want (non-nil *os.File, %q, nil)", destFile, destName, err, wantDestName)
+	}
+	if destFile == os.Stdout {
+		t.Error("getDestFile(\"\", \"\") returned os.Stdout, want non-std file pointer")
+	} else if destFile == os.Stdin {
+		t.Error("getDestFile(\"\", \"\") returned os.Stdin, want non-std file pointer")
+	} else if destFile == os.Stderr {
+		t.Error("getDestFile(\"\", \"\") returned os.Stderr, want non-std file pointer")
+	} else if err == nil {
+		destFile.Close()
+		os.Remove(destName)
+	}
+}

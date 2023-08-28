@@ -79,6 +79,8 @@ func TestCreateUniqueFileNamePanic(t *testing.T) {
 		{"../README", "md"},
 		{"nonexistent-file", "."},
 		{"nonexistent-file", "a"},
+		{"", ""},
+		{"", ".md"},
 	}
 
 	for _, test := range tests {

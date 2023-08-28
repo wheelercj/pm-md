@@ -149,13 +149,18 @@ func getVersion(routes Routes) (string, error) {
 // "-", the destination file is os.Stdout. If the given destination name is empty, a new
 // file is created with a name based on the collection name and the returned name will
 // be different from the given one. If the given destination name refers to an existing
-// file, the user will be prompted to confirm replacing the file.
+// file, the user will be prompted to confirm replacing the file. Any returned file is
+// open.
 func getDestFile(destName, collectionName string) (*os.File, string, error) {
 	if destName == "-" {
 		return os.Stdout, destName, nil
 	}
 	if len(destName) == 0 {
-		destName = CreateUniqueFileName(FormatFileName(collectionName), ".md")
+		fileName := FormatFileName(collectionName)
+		if len(fileName) == 0 {
+			fileName = "collection"
+		}
+		destName = CreateUniqueFileName(fileName, ".md")
 	} else if FileExists(destName) {
 		if err := ConfirmReplaceExistingFile(destName); err != nil {
 			return nil, destName, err
