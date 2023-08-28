@@ -43,7 +43,7 @@ type Collection struct {
 		Schema     string `json:"schema"`
 		ExporterId string `json:"_exporter_id"`
 	} `json:"info"`
-	Routes Routes `json:"item"`
+	Routes []Route `json:"item"`
 	Events []struct {
 		Listen string `json:"listen"`
 		Script struct {
@@ -58,13 +58,13 @@ type Collection struct {
 	} `json:"variable"`
 }
 
-type Routes []struct {
+type Route struct {
 	Name                    string `json:"name"`
 	ProtocolProfileBehavior struct {
 		DisableBodyPruning bool `json:"disableBodyPruning"`
 	} `json:"protocolProfileBehavior"`
 	Request   Request   `json:"request"`
-	Responses Responses `json:"response"`
+	Responses []Response `json:"response"`
 }
 
 type Request struct {
@@ -86,7 +86,7 @@ type Request struct {
 	} `json:"url"`
 }
 
-type Responses []struct {
+type Response struct {
 	Name            string  `json:"name"`
 	OriginalRequest Request `json:"originalRequest"`
 	Status          string  `json:"status"`
