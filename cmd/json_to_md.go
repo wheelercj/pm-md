@@ -13,9 +13,9 @@ import (
 	"strings"
 )
 
-//go:embed collection_default.tmpl
+//go:embed default.tmpl
 var defaultTmplStr string
-var defaultTmplName = "collection_default.tmpl"
+var defaultTmplName = "default.tmpl"
 
 // jsonToMdFile converts JSON bytes to markdown, prints the markdown to a file or
 // stdout, and returns the destination's name. If the destination name is "-", output
