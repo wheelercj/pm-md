@@ -28,8 +28,8 @@ import (
 // default template is used. If the given output path is empty, a new file is created
 // with a unique name based on the JSON. The wanted output path is the path to an
 // existing file containing the wanted output.
-func assertJsonToMdFileNoDiff(t *testing.T, inputJsonFilePath, customTemplatePath, outputPath, wantOutputPath string, showResponseNames bool) {
-	// Skip the test if unique file name creation isn't working correctly.
+func assertJsonToMdFileNoDiff(t *testing.T, inputJsonFilePath, customTemplatePath, outputPath, wantOutputPath string) {
+	// Skip this test if unique file name creation isn't working correctly.
 	TestCreateUniqueFileName(t)
 	TestCreateUniqueFileNamePanic(t)
 	if t.Failed() {
@@ -50,7 +50,6 @@ func assertJsonToMdFileNoDiff(t *testing.T, inputJsonFilePath, customTemplatePat
 		outputPath,
 		customTemplatePath,
 		nil,
-		showResponseNames,
 		false,
 	)
 	if err != nil {
@@ -156,31 +155,25 @@ func TestParseEmptyCollection(t *testing.T) {
 func TestJsonToMdFile(t *testing.T) {
 	inputFilePath := "../samples/calendar-API.postman_collection.json"
 	wantOutputPath := "../samples/calendar-API-v1.md"
-	assertJsonToMdFileNoDiff(t, inputFilePath, "", "", wantOutputPath, false)
-}
-
-func TestJsonToMdFileWithResponseNames(t *testing.T) {
-	inputFilePath := "../samples/calendar-API.postman_collection.json"
-	wantOutputPath := "../samples/calendar-API-v1-with-response-names.md"
-	assertJsonToMdFileNoDiff(t, inputFilePath, "", "", wantOutputPath, true)
+	assertJsonToMdFileNoDiff(t, inputFilePath, "", "", wantOutputPath)
 }
 
 func TestJsonToMdFileWithCustomOutputFileName(t *testing.T) {
 	inputFilePath := "../samples/calendar-API.postman_collection.json"
 	customOutputFileName := "custom-file-name-for-testing.md"
-	wantOutputPath := "../samples/calendar-API-v1-with-response-names.md"
-	assertJsonToMdFileNoDiff(t, inputFilePath, "", customOutputFileName, wantOutputPath, true)
+	wantOutputPath := "../samples/calendar-API-v1.md"
+	assertJsonToMdFileNoDiff(t, inputFilePath, "", customOutputFileName, wantOutputPath)
 }
 
 func TestJsonToMdFileWithCustomTemplate(t *testing.T) {
 	inputFilePath := "../samples/calendar-API.postman_collection.json"
 	customTmplPath := "../samples/custom.tmpl"
 	wantOutputPath := "../samples/calendar-API-v1-from-custom-templ.md"
-	assertJsonToMdFileNoDiff(t, inputFilePath, customTmplPath, "", wantOutputPath, true)
+	assertJsonToMdFileNoDiff(t, inputFilePath, customTmplPath, "", wantOutputPath)
 }
 
 func TestInvalidJsonToMdFile(t *testing.T) {
-	// Skip this test if unique file name creation isn't working.
+	// Skip this test if unique file name creation isn't working correctly.
 	TestCreateUniqueFileName(t)
 	TestCreateUniqueFileNamePanic(t)
 	if t.Failed() {
@@ -196,7 +189,7 @@ func TestInvalidJsonToMdFile(t *testing.T) {
 				"_exporter_id": "23363106"
 			},
 	`)
-	destName, err := jsonToMdFile(invalidJson, "-", "", nil, false, false)
+	destName, err := jsonToMdFile(invalidJson, "-", "", nil, false)
 	if err == nil {
 		t.Error("Error expected")
 		if destName != "-" {

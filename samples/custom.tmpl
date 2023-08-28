@@ -12,7 +12,7 @@
 {{ allowJsonOrPlaintext .Request.Body.Raw }}
 ```
 {{ end }}{{ range .Responses }}
-### sample response {{ if .Name }}"{{ .Name }}" {{ end }}(status: {{ .Code }} {{ .Status }})
+### sample response (status: {{ .Code }} {{ .Status }})
 
 ```{{ .Language }}
 {{ if .Body }}{{ allowJsonOrPlaintext .Body }}{{ else }}(no response body){{ end }}

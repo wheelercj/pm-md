@@ -33,7 +33,6 @@ pm-md collection.json --statuses=200-299,400-499`
 
 var Statuses string
 var CustomTmplPath string
-var ShowResponseNames bool
 var GetTemplate bool
 var ConfirmReplaceExistingFile bool
 
@@ -102,7 +101,6 @@ var rootCmd = &cobra.Command{
 			destName,
 			CustomTmplPath,
 			statusRanges,
-			ShowResponseNames,
 			ConfirmReplaceExistingFile,
 		)
 		if err != nil {
@@ -137,13 +135,6 @@ func init() {
 		"t",
 		"",
 		"Use a custom template for the output",
-	)
-	rootCmd.Flags().BoolVarP(
-		&ShowResponseNames,
-		"show-response-names",
-		"n",
-		false,
-		"Include the names of sample responses in the output",
 	)
 	rootCmd.Flags().BoolVarP(
 		&GetTemplate,

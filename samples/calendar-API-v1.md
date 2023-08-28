@@ -6,7 +6,7 @@
 
 GET `/v1/account/all`
 
-### sample response (status: 200 OK)
+### sample response "get all accounts" (status: 200 OK)
 
 ```json
 [
@@ -39,7 +39,7 @@ POST `/v1/account/register`
 }
 ```
 
-### sample response (status: 201 Created)
+### sample response "create account" (status: 201 Created)
 
 ```json
 {
@@ -62,7 +62,7 @@ POST `/v1/account/login`
 }
 ```
 
-### sample response (status: 200 OK)
+### sample response "log in" (status: 200 OK)
 
 ```json
 {
@@ -87,7 +87,7 @@ PUT `/v1/account`
 }
 ```
 
-### sample response (status: 200 OK)
+### sample response "edit account" (status: 200 OK)
 
 ```html
 Update successful
@@ -108,7 +108,7 @@ DELETE `/v1/account`
 }
 ```
 
-### sample response (status: 200 OK)
+### sample response "delete account" (status: 200 OK)
 
 ```html
 Account deleted

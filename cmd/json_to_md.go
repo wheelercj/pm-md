@@ -22,15 +22,12 @@ var defaultTmplName = "default.tmpl"
 // goes to stdout. If the destination's name is empty, a file is created with a unique
 // name based on the given JSON. Only an empty destination name will be changed from
 // what is given before being returned.
-func jsonToMdFile(jsonBytes []byte, destName string, customTmplPath string, statusRanges [][]int, showResponseNames bool, confirmReplaceExistingFile bool) (string, error) {
+func jsonToMdFile(jsonBytes []byte, destName string, customTmplPath string, statusRanges [][]int, confirmReplaceExistingFile bool) (string, error) {
 	collection, err := parseCollection(jsonBytes)
 	if err != nil {
 		return "", fmt.Errorf("parseCollection: %s", err)
 	}
 	filterResponsesByStatus(collection, statusRanges)
-	if !showResponseNames {
-		clearResponseNames(collection)
-	}
 	if v, err := getVersion(collection.Routes); err == nil {
 		collection.Info.Name += " " + v
 	}
@@ -118,16 +115,6 @@ func filterResponsesByStatus(collection *Collection, statusRanges [][]int) {
 				route.Responses = slices.Delete(route.Responses, j, j+1)
 			}
 			collection.Routes[i] = route
-		}
-	}
-}
-
-// clearResponseNames changes each response name to an empty string. This is helpful
-// when response names are not wanted in the output.
-func clearResponseNames(collection *Collection) {
-	for i := range collection.Routes {
-		for j := range collection.Routes[i].Responses {
-			collection.Routes[i].Responses[j].Name = ""
 		}
 	}
 }
