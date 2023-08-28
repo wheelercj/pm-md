@@ -45,7 +45,14 @@ func assertJsonToMdFileNoDiff(t *testing.T, inputJsonFilePath, customTemplatePat
 		t.Errorf("Failed to open %q", inputJsonFilePath)
 		return
 	}
-	outputPath, err = jsonToMdFile(jsonBytes, outputPath, customTemplatePath, nil, showResponseNames)
+	outputPath, err = jsonToMdFile(
+		jsonBytes,
+		outputPath,
+		customTemplatePath,
+		nil,
+		showResponseNames,
+		false,
+	)
 	if err != nil {
 		t.Errorf("jsonToMdFile: %s", err)
 		return
@@ -189,7 +196,7 @@ func TestInvalidJsonToMdFile(t *testing.T) {
 				"_exporter_id": "23363106"
 			},
 	`)
-	destName, err := jsonToMdFile(invalidJson, "-", "", nil, false)
+	destName, err := jsonToMdFile(invalidJson, "-", "", nil, false, false)
 	if err == nil {
 		t.Error("Error expected")
 		if destName != "-" {
@@ -287,7 +294,7 @@ func TestGetVersionWithoutVersionedRoutes(t *testing.T) {
 }
 
 func TestGetDestFileStdout(t *testing.T) {
-	destFile, destName, err := getDestFile("-", "")
+	destFile, destName, err := getDestFile("-", "", false)
 	if destFile != os.Stdout || destName != "-" || err != nil {
 		t.Errorf("getDestFile(\"-\", \"\") = (%p, %q, %q), want (%p, \"-\", nil)", destFile, destName, err, os.Stdout)
 	}
@@ -303,7 +310,7 @@ func TestGetDestFile(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.collectionName, func(t *testing.T) {
-			destFile, destName, err := getDestFile(test.originalDestName, test.collectionName)
+			destFile, destName, err := getDestFile(test.originalDestName, test.collectionName, false)
 			if err != nil {
 				t.Errorf(
 					"getDestFile(%q, %q) = (%p, %q, %v), want nil error",
@@ -346,7 +353,7 @@ func TestGetDestFile(t *testing.T) {
 
 func TestGetDestFileWithEmptyNames(t *testing.T) {
 	wantDestName := "collection.md"
-	destFile, destName, err := getDestFile("", "")
+	destFile, destName, err := getDestFile("", "", false)
 	if err != nil || destName != wantDestName || destFile == nil {
 		t.Errorf("getDestFile(\"\", \"\") = (%p, %q, %v), want (non-nil *os.File, %q, nil)", destFile, destName, err, wantDestName)
 	}
@@ -359,5 +366,16 @@ func TestGetDestFileWithEmptyNames(t *testing.T) {
 	} else if err == nil {
 		destFile.Close()
 		os.Remove(destName)
+	}
+}
+
+func TestGetDestFileNameReplaceError(t *testing.T) {
+	destFile, destName, err := getDestFile("samples/calendar-API-v1.md", "", false)
+	if err == nil {
+		t.Errorf("getDestFile targeting an existing file returned nil error, want non-nil error")
+		t.Errorf("getDestFile(<existing file>, \"\") = (%p, %q, nil), want (nil, \"\", <non-nil error>)", destFile, destName)
+		if destName != "-" {
+			destFile.Close()
+		}
 	}
 }

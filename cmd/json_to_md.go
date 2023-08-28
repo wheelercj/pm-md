@@ -22,7 +22,7 @@ var defaultTmplName = "collection_default.tmpl"
 // goes to stdout. If the destination's name is empty, a file is created with a unique
 // name based on the given JSON. Only an empty destination name will be changed from
 // what is given before being returned.
-func jsonToMdFile(jsonBytes []byte, destName string, customTmplPath string, statusRanges [][]int, showResponseNames bool) (string, error) {
+func jsonToMdFile(jsonBytes []byte, destName string, customTmplPath string, statusRanges [][]int, showResponseNames bool, confirmReplaceExistingFile bool) (string, error) {
 	collection, err := parseCollection(jsonBytes)
 	if err != nil {
 		return "", fmt.Errorf("parseCollection: %s", err)
@@ -35,7 +35,7 @@ func jsonToMdFile(jsonBytes []byte, destName string, customTmplPath string, stat
 		collection.Info.Name += " " + v
 	}
 
-	destFile, destName, err := getDestFile(destName, collection.Info.Name)
+	destFile, destName, err := getDestFile(destName, collection.Info.Name, confirmReplaceExistingFile)
 	if err != nil {
 		return "", err
 	}
@@ -149,9 +149,9 @@ func getVersion(routes []Route) (string, error) {
 // "-", the destination file is os.Stdout. If the given destination name is empty, a new
 // file is created with a name based on the collection name and the returned name will
 // be different from the given one. If the given destination name refers to an existing
-// file, the user will be prompted to confirm replacing the file. Any returned file is
-// open.
-func getDestFile(destName, collectionName string) (*os.File, string, error) {
+// file and confirmation to replace an existing file is not given, an error is returned.
+// Any returned file is open.
+func getDestFile(destName, collectionName string, confirmReplaceExistingFile bool) (*os.File, string, error) {
 	if destName == "-" {
 		return os.Stdout, destName, nil
 	}
@@ -161,10 +161,8 @@ func getDestFile(destName, collectionName string) (*os.File, string, error) {
 			fileName = "collection"
 		}
 		destName = CreateUniqueFileName(fileName, ".md")
-	} else if FileExists(destName) {
-		if err := ConfirmReplaceExistingFile(destName); err != nil {
-			return nil, destName, err
-		}
+	} else if FileExists(destName) && !confirmReplaceExistingFile {
+		return nil, "", fmt.Errorf("File %q already exists. Run the command again with the --replace flag to confirm replacing it.", destName)
 	}
 	destFile, err := os.Create(destName)
 	if err != nil {

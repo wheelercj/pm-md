@@ -35,6 +35,7 @@ var Statuses string
 var CustomTmplPath string
 var ShowResponseNames bool
 var GetTemplate bool
+var ConfirmReplaceExistingFile bool
 
 var rootCmd = &cobra.Command{
 	Use:     "pm-md [postman_export.json [output.md]]",
@@ -96,11 +97,19 @@ var rootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		if destName, err := jsonToMdFile(jsonBytes, destName, CustomTmplPath, statusRanges, ShowResponseNames); err != nil {
+		destName, err = jsonToMdFile(
+			jsonBytes,
+			destName,
+			CustomTmplPath,
+			statusRanges,
+			ShowResponseNames,
+			ConfirmReplaceExistingFile,
+		)
+		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		} else if destName != "-" {
-			fmt.Fprintln(os.Stderr, "Created", destName)
+			fmt.Fprintf(os.Stderr, "Created %q\n", destName)
 		}
 	},
 }
@@ -142,4 +151,11 @@ func init() {
 		false,
 		"Creates a file of the default template for customization",
 	)
+	rootCmd.Flags().BoolVar(
+		&ConfirmReplaceExistingFile,
+		"replace",
+		false,
+		"Confirm whether to replace a chosen existing output file",
+	)
+	rootCmd.Flags().MarkHidden("replace")
 }
