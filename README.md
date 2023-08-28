@@ -46,7 +46,7 @@ These steps require [Go](https://go.dev/) to be installed.
 ### custom templates
 
 * `pm-md --get-template` creates a new file of the default template as an easier starting point for customization.
-* `pm-md api.json --template=custom.tmpl` reads api.json and saves markdown formatted using the custom template file custom.tmpl into a new file. In a template, you can use the variables and functions defined in `types.go`. Sometimes it's helpful to look at the JSON exported from Postman to understand the variables. These template docs might also be helpful:
+* `pm-md api.json --template=custom.tmpl` reads api.json and saves markdown formatted using the custom template file custom.tmpl into a new file. In a template, you can use the variables and functions defined in [types.go](cmd/types.go). Sometimes it's helpful to look at the JSON exported from Postman to understand the variables. These template docs might also be helpful:
   * [How To Use Templates in Go — DigitalOcean](https://www.digitalocean.com/community/tutorials/how-to-use-templates-in-go#step-4-writing-a-template)
   * [the template package — Go's standard library](https://pkg.go.dev/text/template)
 
