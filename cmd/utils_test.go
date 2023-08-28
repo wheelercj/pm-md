@@ -16,9 +16,7 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"reflect"
-	"strings"
 	"testing"
 )
 
@@ -37,84 +35,6 @@ func assertPanic(t *testing.T, f any, args ...any) {
 	}
 
 	reflect.ValueOf(f).Call(reflectArgs)
-}
-
-// assertNoDiff compares two strings, asserting they have the same number of lines and
-// the same content on each line. The strings have lines separated by linesep.
-func assertNoDiff(t *testing.T, ans, want, linesep string) {
-	if ans == want {
-		return
-	}
-	ansSlice := strings.Split(ans, linesep)
-	wantSlice := strings.Split(want, linesep)
-	for i := 0; i < len(ansSlice); i++ {
-		if i >= len(wantSlice) {
-			t.Errorf(
-				"Actual output longer than expected (want %d lines, got %d).\nContinues with\n  %q",
-				len(wantSlice), len(ansSlice), ansSlice[i],
-			)
-			return
-		}
-		if ansSlice[i] != wantSlice[i] {
-			t.Errorf(
-				"Difference on line %d\nwant:\n  %q\ngot:\n  %q",
-				i+1, wantSlice[i], ansSlice[i],
-			)
-			return
-		}
-	}
-	if len(ansSlice) < len(wantSlice) {
-		t.Errorf(
-			"Actual output shorter than expected (want %d lines, got %d).\nShould continue with\n  %q",
-			len(wantSlice), len(ansSlice), wantSlice[len(ansSlice)],
-		)
-		return
-	}
-	t.Errorf("The actual and expected strings don't match for an unknown reason")
-}
-
-// assertJsonToMdFileNoDiff converts JSON to markdown and asserts the resulting markdown
-// is the same as a given example. If the given custom template path is empty, the
-// default template is used. If the given output path is empty, a new file is created
-// with a unique name based on the JSON. The wanted output path is the path to an
-// existing file containing the wanted output.
-func assertJsonToMdFileNoDiff(t *testing.T, inputJsonFilePath, customTemplatePath, outputPath, wantOutputPath string, showResponseNames bool) {
-	// Skip the test if unique file name creation isn't working correctly.
-	TestCreateUniqueFileName(t)
-	TestCreateUniqueFileNamePanic(t)
-	if t.Failed() {
-		return
-	}
-	if outputPath == "-" {
-		t.Error("This test cannot use stdout")
-		return
-	}
-
-	jsonBytes, err := os.ReadFile(inputJsonFilePath)
-	if err != nil {
-		t.Errorf("Failed to open %q", inputJsonFilePath)
-		return
-	}
-	outputPath, err = jsonToMdFile(jsonBytes, outputPath, customTemplatePath, nil, showResponseNames)
-	if err != nil {
-		t.Errorf("jsonToMdFile: %s", err)
-		return
-	}
-	defer os.Remove(outputPath)
-	ansBytes, err := os.ReadFile(outputPath)
-	if err != nil {
-		t.Errorf("Failed to open %q", outputPath)
-		return
-	}
-	wantBytes, err := os.ReadFile(wantOutputPath)
-	if err != nil {
-		t.Errorf("Failed to open %q", wantOutputPath)
-		return
-	}
-	ans := strings.ReplaceAll(string(ansBytes), "\r\n", "\n")
-	want := strings.ReplaceAll(string(wantBytes), "\r\n", "\n")
-
-	assertNoDiff(t, ans, want, "\n")
 }
 
 func TestFileExists(t *testing.T) {
