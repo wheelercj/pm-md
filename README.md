@@ -6,7 +6,7 @@ Convert a Postman collection to markdown documentation.
 
 [sample result](samples/calendar-API-v1.md)
 
-**Template-driven**: you can easily customize the output by editing the template. See the "custom templates" section below for more details.
+**Template-driven**. You can easily customize the output by editing the template. See the "custom templates" section below for more details.
 
 ## download
 
