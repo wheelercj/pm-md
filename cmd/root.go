@@ -145,9 +145,10 @@ func init() {
 		false,
 		"Include the names of sample responses in the output",
 	)
-	rootCmd.Flags().BoolVar(
+	rootCmd.Flags().BoolVarP(
 		&GetTemplate,
 		"get-template",
+		"g",
 		false,
 		"Creates a file of the default template for customization",
 	)
