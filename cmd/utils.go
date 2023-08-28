@@ -94,5 +94,5 @@ func exportDefaultTemplate() {
 		fmt.Fprintln(os.Stderr, fmt.Errorf("file.Write: %s", err))
 		os.Exit(1)
 	}
-	fmt.Fprintln(os.Stderr, "Created", name)
+	fmt.Fprintf(os.Stderr, "Created %q\n", name)
 }
