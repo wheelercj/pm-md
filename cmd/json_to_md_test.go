@@ -69,21 +69,29 @@ func TestParseEmptyCollection(t *testing.T) {
 }
 
 func TestJsonToMdFile(t *testing.T) {
-	inputFilePath := "../samples/calendar API.postman_collection.json"
-	wantFilePath := "../samples/calendar API v1.md"
-	assertJsonToMdFileNoDiff(t, inputFilePath, wantFilePath, false, true)
+	inputFilePath := "../samples/calendar-API.postman_collection.json"
+	wantOutputPath := "../samples/calendar-API-v1.md"
+	assertJsonToMdFileNoDiff(t, inputFilePath, "", "", wantOutputPath, false)
 }
 
 func TestJsonToMdFileWithResponseNames(t *testing.T) {
-	inputFilePath := "../samples/calendar API.postman_collection.json"
-	wantFilePath := "../samples/calendar API v1 with response names.md"
-	assertJsonToMdFileNoDiff(t, inputFilePath, wantFilePath, true, true)
+	inputFilePath := "../samples/calendar-API.postman_collection.json"
+	wantOutputPath := "../samples/calendar-API-v1-with-response-names.md"
+	assertJsonToMdFileNoDiff(t, inputFilePath, "", "", wantOutputPath, true)
 }
 
 func TestJsonToMdFileWithCustomOutputFileName(t *testing.T) {
-	inputFilePath := "../samples/calendar API.postman_collection.json"
-	customOutputFileName := "custom file name for testing.md"
-	assertJsonToMdFileNoDiff(t, inputFilePath, customOutputFileName, true, false)
+	inputFilePath := "../samples/calendar-API.postman_collection.json"
+	customOutputFileName := "custom-file-name-for-testing.md"
+	wantOutputPath := "../samples/calendar-API-v1-with-response-names.md"
+	assertJsonToMdFileNoDiff(t, inputFilePath, "", customOutputFileName, wantOutputPath, true)
+}
+
+func TestJsonToMdFileWithCustomTemplate(t *testing.T) {
+	inputFilePath := "../samples/calendar-API.postman_collection.json"
+	customTmplPath := "../samples/custom.tmpl"
+	wantOutputPath := "../samples/calendar-API-v1-from-custom-templ.md"
+	assertJsonToMdFileNoDiff(t, inputFilePath, customTmplPath, "", wantOutputPath, true)
 }
 
 func TestInvalidJsonToMdFile(t *testing.T) {
@@ -103,7 +111,7 @@ func TestInvalidJsonToMdFile(t *testing.T) {
 				"_exporter_id": "23363106"
 			},
 	`)
-	destName, err := jsonToMdFile(invalidJson, "-", nil, false)
+	destName, err := jsonToMdFile(invalidJson, "-", "", nil, false)
 	if err == nil {
 		t.Error("Error expected")
 		if destName != "-" {
@@ -113,7 +121,7 @@ func TestInvalidJsonToMdFile(t *testing.T) {
 }
 
 func TestParseCollectionWithOldSchema(t *testing.T) {
-	inputFilePath := "../samples/calendar API.postman_collection.json"
+	inputFilePath := "../samples/calendar-API.postman_collection.json"
 	jsonBytes, err := os.ReadFile(inputFilePath)
 	if err != nil {
 		t.Errorf("Failed to open %s", inputFilePath)
@@ -135,7 +143,7 @@ func TestParseCollectionWithOldSchema(t *testing.T) {
 }
 
 func getCollection(t *testing.T) (*Collection, error) {
-	inputFilePath := "../samples/calendar API.postman_collection.json"
+	inputFilePath := "../samples/calendar-API.postman_collection.json"
 	jsonBytes, err := os.ReadFile(inputFilePath)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to open %s", inputFilePath)
@@ -197,5 +205,63 @@ func TestGetVersionWithoutVersionedRoutes(t *testing.T) {
 	version, err := getVersion(collection.Routes)
 	if err == nil {
 		t.Errorf("getVersion returned (%q, nil), want non-nil error", version)
+	}
+}
+
+func TestGetDestFileStdout(t *testing.T) {
+	destFile, destName, err := getDestFile("-", "")
+	if destFile != os.Stdout || destName != "-" || err != nil {
+		t.Errorf("getDestFile(\"-\", \"\") = (%p, %q, %q), want (%p, \"-\", nil)", destFile, destName, err, os.Stdout)
+	}
+}
+
+func TestGetDestFile(t *testing.T) {
+	tests := []struct {
+		originalDestName, collectionName, wantName string
+	}{
+		{"", "web API", "web-API.md"},
+		{"my-API.md", "a collection name", "my-API.md"},
+	}
+
+	for _, test := range tests {
+		t.Run(test.collectionName, func(t *testing.T) {
+			destFile, destName, err := getDestFile(test.originalDestName, test.collectionName)
+			if err != nil {
+				t.Errorf(
+					"getDestFile(%q, %q) = (%p, %q, %v), want nil error",
+					test.originalDestName, test.collectionName, destFile, destName, err,
+				)
+				return
+			}
+			if destFile == os.Stdout {
+				t.Errorf(
+					"getDestFile(%q, %q) = (os.Stdout, %q, nil), want non-std file",
+					test.originalDestName, test.collectionName, destName,
+				)
+				return
+			}
+			if destFile == os.Stdin {
+				t.Errorf(
+					"getDestFile(%q, %q) = (os.Stdin, %q, nil), want non-std file",
+					test.originalDestName, test.collectionName, destName,
+				)
+				return
+			}
+			if destFile == os.Stderr {
+				t.Errorf(
+					"getDestFile(%q, %q) = (os.Stderr, %q, nil), want non-std file",
+					test.originalDestName, test.collectionName, destName,
+				)
+				return
+			}
+			destFile.Close()
+			defer os.Remove(destName)
+			if destName != test.wantName {
+				t.Errorf(
+					"getDestFile(%q, %q) = (%p, %q, nil), want (%p, %q, nil)",
+					test.originalDestName, test.collectionName, destFile, destName, destFile, test.wantName,
+				)
+			}
+		})
 	}
 }

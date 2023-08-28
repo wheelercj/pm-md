@@ -14,6 +14,28 @@
 
 package cmd
 
+import (
+	"encoding/json"
+	"html/template"
+	"strings"
+)
+
+var funcMap = template.FuncMap{
+	"join": func(elems []string, sep string) string {
+		return strings.Join(elems, sep)
+	},
+	"allowJsonOrPlaintext": func(s string) any {
+		if json.Valid([]byte(s)) {
+			return template.HTML(s)
+		}
+		return s
+	},
+	// "assumeSafeHtml": func(s string) template.HTML {
+	// 	// This prevents HTML escaping. Never run this with untrusted input.
+	// 	return template.HTML(s)
+	// },
+}
+
 type Collection struct {
 	Info struct {
 		PostmanId  string `json:"_postman_id"`

@@ -74,15 +74,18 @@ func assertNoDiff(t *testing.T, ans, want, linesep string) {
 }
 
 // assertJsonToMdFileNoDiff converts JSON to markdown and asserts the resulting markdown
-// is the same as a given example.
-func assertJsonToMdFileNoDiff(t *testing.T, inputJsonFilePath, mdFilePath string, showResponseNames, generateFileName bool) {
+// is the same as a given example. If the given custom template path is empty, the
+// default template is used. If the given output path is empty, a new file is created
+// with a unique name based on the JSON. The wanted output path is the path to an
+// existing file containing the wanted output.
+func assertJsonToMdFileNoDiff(t *testing.T, inputJsonFilePath, customTemplatePath, outputPath, wantOutputPath string, showResponseNames bool) {
 	// Skip the test if unique file name creation isn't working correctly.
 	TestCreateUniqueFileName(t)
 	TestCreateUniqueFileNamePanic(t)
 	if t.Failed() {
 		return
 	}
-	if mdFilePath == "-" {
+	if outputPath == "-" {
 		t.Error("This test cannot use stdout")
 		return
 	}
@@ -92,24 +95,20 @@ func assertJsonToMdFileNoDiff(t *testing.T, inputJsonFilePath, mdFilePath string
 		t.Errorf("Failed to open %q", inputJsonFilePath)
 		return
 	}
-	if generateFileName {
-		mdFilePath, err = jsonToMdFile(jsonBytes, "", nil, showResponseNames)
-	} else {
-		mdFilePath, err = jsonToMdFile(jsonBytes, mdFilePath, nil, showResponseNames)
-	}
+	outputPath, err = jsonToMdFile(jsonBytes, outputPath, customTemplatePath, nil, showResponseNames)
 	if err != nil {
 		t.Errorf("jsonToMdFile: %s", err)
 		return
 	}
-	defer os.Remove(mdFilePath)
-	ansBytes, err := os.ReadFile(mdFilePath)
+	defer os.Remove(outputPath)
+	ansBytes, err := os.ReadFile(outputPath)
 	if err != nil {
-		t.Errorf("Failed to open %q", mdFilePath)
+		t.Errorf("Failed to open %q", outputPath)
 		return
 	}
-	wantBytes, err := os.ReadFile(mdFilePath)
+	wantBytes, err := os.ReadFile(wantOutputPath)
 	if err != nil {
-		t.Errorf("Failed to open %q", mdFilePath)
+		t.Errorf("Failed to open %q", wantOutputPath)
 		return
 	}
 	ans := strings.ReplaceAll(string(ansBytes), "\r\n", "\n")

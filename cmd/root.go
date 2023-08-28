@@ -32,6 +32,7 @@ pm-md collection.json -
 pm-md collection.json --statuses=200-299,400-499`
 
 var Statuses string
+var CustomTmplPath string
 var ShowResponseNames bool
 var GetTemplate bool
 
@@ -52,7 +53,10 @@ var rootCmd = &cobra.Command{
 			return err
 		}
 		if args[0] != "-" && !strings.HasSuffix(strings.ToLower(args[0]), ".json") {
-			return fmt.Errorf("%q is not \"-\" and does not end with \".json\"", args[0])
+			return fmt.Errorf("%q must be \"-\" or end with \".json\"", args[0])
+		}
+		if len(CustomTmplPath) > 0 && !strings.HasSuffix(CustomTmplPath, ".tmpl") {
+			return fmt.Errorf("%q must end with \".tmpl\"", CustomTmplPath)
 		}
 		return nil
 	},
@@ -73,6 +77,7 @@ var rootCmd = &cobra.Command{
 		// fmt.Printf("statuses: %q\n", Statuses)
 		// fmt.Println("show response names:", ShowResponseNames)
 		// fmt.Println("get template:", GetTemplate)
+		// fmt.Printf("custom template: %q\n", CustomTmplPath)
 
 		statusRanges, err := parseStatusRanges(Statuses)
 		if err != nil {
@@ -91,7 +96,7 @@ var rootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		if destName, err := jsonToMdFile(jsonBytes, destName, statusRanges, ShowResponseNames); err != nil {
+		if destName, err := jsonToMdFile(jsonBytes, destName, CustomTmplPath, statusRanges, ShowResponseNames); err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		} else if destName != "-" {
@@ -116,6 +121,13 @@ func init() {
 		"s",
 		"",
 		"Include only the sample responses with status codes in given range(s)",
+	)
+	rootCmd.Flags().StringVarP(
+		&CustomTmplPath,
+		"template",
+		"t",
+		"",
+		"Use a custom template for the output",
 	)
 	rootCmd.Flags().BoolVarP(
 		&ShowResponseNames,

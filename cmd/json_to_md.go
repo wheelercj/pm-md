@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"html/template"
 	"os"
+	"path"
 	"regexp"
 	"slices"
 	"strconv"
@@ -21,7 +22,7 @@ var defaultTmplName = "collection_default.tmpl"
 // goes to stdout. If the destination's name is empty, a file is created with a unique
 // name based on the given JSON. Only an empty destination name will be changed from
 // what is given before being returned.
-func jsonToMdFile(jsonBytes []byte, destName string, statusRanges [][]int, showResponseNames bool) (string, error) {
+func jsonToMdFile(jsonBytes []byte, destName string, customTmplPath string, statusRanges [][]int, showResponseNames bool) (string, error) {
 	collection, err := parseCollection(jsonBytes)
 	if err != nil {
 		return "", fmt.Errorf("parseCollection: %s", err)
@@ -34,48 +35,17 @@ func jsonToMdFile(jsonBytes []byte, destName string, statusRanges [][]int, showR
 		collection.Info.Name += " " + v
 	}
 
-	var destFile *os.File
-	if len(destName) == 0 {
-		destName = CreateUniqueFileName(FormatFileName(collection.Info.Name), ".md")
-	} else if destName == "-" {
-		destFile = os.Stdout
-	} else if FileExists(destName) {
-		if err := ConfirmReplaceExistingFile(destName); err != nil {
-			return "", fmt.Errorf("ConfirmReplaceExistingFile: %s", err)
-		}
+	destFile, destName, err := getDestFile(destName, collection.Info.Name)
+	if err != nil {
+		return "", err
 	}
-
-	if destFile == nil {
-		destFile, err = os.Create(destName)
-		if err != nil {
-			return "", fmt.Errorf("os.Create: %s", err)
-		}
+	if destName != "-" {
+		// destFile is not os.Stdout
 		defer destFile.Close()
 	}
 
-	funcMap := template.FuncMap{
-		"join": func(elems []string, sep string) string {
-			return strings.Join(elems, sep)
-		},
-		"allowJsonOrPlaintext": func(s string) any {
-			if json.Valid([]byte(s)) {
-				return template.HTML(s)
-			}
-			return s
-		},
-		// "assumeSafeHtml": func(s string) template.HTML {
-		// 	// This prevents HTML escaping. Never run this with untrusted input.
-		// 	return template.HTML(s)
-		// },
-	}
-
-	tmpl, err := template.New(defaultTmplName).Funcs(funcMap).Parse(defaultTmplStr)
-	if err != nil {
-		return "", fmt.Errorf("*Template.Parse: %s", err)
-	}
-	err = tmpl.Execute(destFile, collection)
-	if err != nil {
-		return "", fmt.Errorf("tmpl.Execute: %s", err)
+	if err := executeTemplate(destFile, collection, customTmplPath); err != nil {
+		return "", fmt.Errorf("executeTemplate: %s", err)
 	}
 
 	return destName, nil
@@ -173,4 +143,54 @@ func getVersion(routes Routes) (string, error) {
 		}
 	}
 	return "", fmt.Errorf("No version number found")
+}
+
+// getDestFile gets the destination file and its name. If the given destination name is
+// "-", the destination file is os.Stdout. If the given destination name is empty, a new
+// file is created with a name based on the collection name and the returned name will
+// be different from the given one. If the given destination name refers to an existing
+// file, the user will be prompted to confirm replacing the file.
+func getDestFile(destName, collectionName string) (*os.File, string, error) {
+	if destName == "-" {
+		return os.Stdout, destName, nil
+	}
+	if len(destName) == 0 {
+		destName = CreateUniqueFileName(FormatFileName(collectionName), ".md")
+	} else if FileExists(destName) {
+		if err := ConfirmReplaceExistingFile(destName); err != nil {
+			return nil, destName, err
+		}
+	}
+	destFile, err := os.Create(destName)
+	if err != nil {
+		return nil, "", fmt.Errorf("os.Create: %s", err)
+	}
+	return destFile, destName, nil
+}
+
+// executeTemplate uses a template and FuncMap to convert the collection to markdown and
+// saves to the given destination file. The destination file is not closed. If the given
+// custom template path is empty, the default template is used.
+func executeTemplate(destFile *os.File, collection *Collection, customTmplPath string) error {
+	var tmpl *template.Template
+	var err error
+	if len(customTmplPath) > 0 {
+		tmplBytes, err := os.ReadFile(customTmplPath)
+		if err != nil {
+			return fmt.Errorf("os.ReadFile: %s", err)
+		}
+		name := path.Base(strings.ReplaceAll(customTmplPath, "\\", "/"))
+		tmpl, err = template.New(name).Funcs(funcMap).Parse(string(tmplBytes))
+	} else {
+		tmpl, err = template.New(defaultTmplName).Funcs(funcMap).Parse(defaultTmplStr)
+	}
+	if err != nil {
+		return fmt.Errorf("*Template.Parse: %s", err)
+	}
+	err = tmpl.Execute(destFile, collection)
+	if err != nil {
+		return fmt.Errorf("tmpl.Execute: %s", err)
+	}
+
+	return nil
 }
