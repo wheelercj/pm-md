@@ -51,7 +51,7 @@ func TestFileDoesNotExist(t *testing.T) {
 
 func TestCreateUniqueFileName(t *testing.T) {
 	tests := []struct {
-		a, b, want string
+		name, ext, want string
 	}{
 		{"../LICENSE", "", "../LICENSE(1)"},
 		{"../README", ".md", "../README(1).md"},
@@ -59,13 +59,13 @@ func TestCreateUniqueFileName(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		testName := fmt.Sprintf("%q,%q", test.a, test.b)
+		testName := fmt.Sprintf("%q,%q", test.name, test.ext)
 		t.Run(testName, func(t *testing.T) {
-			ans := CreateUniqueFileName(test.a, test.b)
+			ans := CreateUniqueFileName(test.name, test.ext)
 			if ans != test.want {
 				t.Errorf(
 					"CreateUniqueFileName(%q, %q) = %q, want %q",
-					test.a, test.b, ans, test.want,
+					test.name, test.ext, ans, test.want,
 				)
 			}
 		})
@@ -74,7 +74,7 @@ func TestCreateUniqueFileName(t *testing.T) {
 
 func TestCreateUniqueFileNamePanic(t *testing.T) {
 	tests := []struct {
-		a, b string
+		name, ext string
 	}{
 		{"../README", "md"},
 		{"nonexistent-file", "."},
@@ -84,9 +84,9 @@ func TestCreateUniqueFileNamePanic(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		testName := fmt.Sprintf("%q,%q", test.a, test.b)
+		testName := fmt.Sprintf("%q,%q", test.name, test.ext)
 		t.Run(testName, func(t *testing.T) {
-			assertPanic(t, CreateUniqueFileName, test.a, test.b)
+			assertPanic(t, CreateUniqueFileName, test.name, test.ext)
 		})
 	}
 }
