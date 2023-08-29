@@ -70,6 +70,8 @@ func FormatFileName(fileName string) string {
 	return strings.Trim(string(result), invalidEdgeChars)
 }
 
+// ScanStdin reads input from stdin until it finds EOF or a different error, and then
+// returns any input all at once. If EOF is found, the returned error is nil.
 func ScanStdin() ([]byte, error) {
 	lines := make([]string, 0)
 	scanner := bufio.NewScanner(os.Stdin)
@@ -82,6 +84,8 @@ func ScanStdin() ([]byte, error) {
 	return []byte(strings.Join(lines, "\n")), nil
 }
 
+// exportDefaultTemplate creates a new file with a unique name (it will never replace
+// an existing file) and saves the default template into it.
 func exportDefaultTemplate() {
 	name := CreateUniqueFileName("collection", ".tmpl")
 	file, err := os.Create(name)
