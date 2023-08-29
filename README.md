@@ -49,6 +49,14 @@ In a template, you can use the variables and functions defined in [types.go](cmd
   * [How To Use Templates in Go — DigitalOcean](https://www.digitalocean.com/community/tutorials/how-to-use-templates-in-go#step-4-writing-a-template)
   * [the template package — Go's standard library](https://pkg.go.dev/text/template)
 
+Here's how to add a table of contents with links that work in GitHub:
+
+```
+{{ range .Routes }}
+* {{ formatHeaderLink .Name }}
+{{- end }}
+```
+
 ## tips
 
 The result looks best when there is an example saved for each endpoint (after clicking "Send" in Postman, a "Save as Example" button appears).

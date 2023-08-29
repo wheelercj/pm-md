@@ -34,6 +34,7 @@ var funcMap = template.FuncMap{
 	// 	// This prevents HTML escaping. Never run this with untrusted input.
 	// 	return template.HTML(s)
 	// },
+	"formatHeaderLink": formatHeaderLink,
 }
 
 type Collection struct {
@@ -63,7 +64,7 @@ type Route struct {
 	ProtocolProfileBehavior struct {
 		DisableBodyPruning bool `json:"disableBodyPruning"`
 	} `json:"protocolProfileBehavior"`
-	Request   Request   `json:"request"`
+	Request   Request    `json:"request"`
 	Responses []Response `json:"response"`
 }
 
