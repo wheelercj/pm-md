@@ -70,7 +70,7 @@ type Route struct {
 
 type Request struct {
 	Method string `json:"method"`
-	Header []any  `json:"header"`
+	Headers []any  `json:"header"`
 	Body   struct {
 		Mode    string `json:"mode"`
 		Raw     string `json:"raw"`
