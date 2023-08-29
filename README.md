@@ -56,7 +56,21 @@ Here's how to add a table of contents with links that work in GitHub:
 {{- end }}
 ```
 
-## tips
+Alternatively, you could hide sections by default and show them when their titles are clicked, like this:
+
+<details>
+<summary>click me</summary>
+POST `/v1/hello`
+</details>
+
+```html
+<details>
+<summary>click me</summary>
+POST `/v1/hello`
+</details>
+```
+
+## Postman tips
 
 The result looks best when there is an example saved for each endpoint (after clicking "Send" in Postman, a "Save as Example" button appears).
 
