@@ -14,7 +14,7 @@
 
 package main
 
-import "github.com/wheelercj/pm-md/cmd"
+import "github.com/wheelercj/pm2md/cmd"
 
 func main() {
 	cmd.Execute()

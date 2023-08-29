@@ -1,4 +1,4 @@
-module github.com/wheelercj/pm-md
+module github.com/wheelercj/pm2md
 
 go 1.21.0
 

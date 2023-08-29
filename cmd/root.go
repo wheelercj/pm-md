@@ -24,12 +24,12 @@ import (
 
 const short = "Convert a Postman collection to markdown documentation"
 const jsonHelp = "You can get a JSON file from Postman by exporting a collection as a v2.1.0 collection"
-const github = "More help available here: github.com/wheelercj/pm-md"
-const version = "v0.0.6 (you can check for updates here: https://github.com/wheelercj/pm-md/releases)"
-const example = `pm-md collection.json
-pm-md collection.json documentation.md
-pm-md collection.json -
-pm-md collection.json --statuses=200-299,400-499`
+const github = "More help available here: github.com/wheelercj/pm2md"
+const version = "v0.0.6 (you can check for updates here: https://github.com/wheelercj/pm2md/releases)"
+const example = `pm2md collection.json
+pm2md collection.json documentation.md
+pm2md collection.json -
+pm2md collection.json --statuses=200-299,400-499`
 
 var Statuses string
 var CustomTmplPath string
@@ -37,7 +37,7 @@ var GetTemplate bool
 var ConfirmReplaceExistingFile bool
 
 var rootCmd = &cobra.Command{
-	Use:     "pm-md [postman_export.json [output.md]]",
+	Use:     "pm2md [postman_export.json [output.md]]",
 	Short:   short,
 	Long:    fmt.Sprintf("%s\n\n%s.\n%s", short, jsonHelp, github),
 	Example: example,
