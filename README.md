@@ -35,7 +35,6 @@ These steps require [Go](https://go.dev/) to be installed.
 * `pm-md collection.json -` reads collection.json and returns markdown to stdout.
 * `pm-md - -` receives JSON from stdin and returns markdown to stdout, such as with `cat collection.json | pm-md - -`.
 * `pm-md - out.md` receives JSON from stdin and saves markdown to out.md.
-* `pm-md api.json --show-response-names` reads api.json and saves markdown with response titles to a new file.
 
 ### custom templates
 
