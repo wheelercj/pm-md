@@ -26,7 +26,7 @@ These steps require [Go](https://go.dev/) to be installed.
 4. Run `go install` to install the executable file. If you get an error message, you may need to [edit your PATH environment variable](https://go.dev/doc/tutorial/compile-install).
 5. Run the app with `pm-md --help`.
 
-## examples
+## command examples
 
 * `pm-md collection.json documentation.md` reads collection.json and saves markdown to documentation.md.
 * `pm-md collection.json` reads collection.json and saves markdown to a new file with a unique name based on the collection's name. This will NEVER replace an existing file.
