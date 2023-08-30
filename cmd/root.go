@@ -25,7 +25,7 @@ import (
 const short = "Convert a Postman collection to markdown documentation"
 const jsonHelp = "You can get a JSON file from Postman by exporting a collection as a v2.1.0 collection"
 const github = "More help available here: github.com/wheelercj/pm2md"
-const version = "v0.0.6 (you can check for updates here: https://github.com/wheelercj/pm2md/releases)"
+const version = "v0.0.7 (you can check for updates here: https://github.com/wheelercj/pm2md/releases)"
 const example = `pm2md collection.json
 pm2md collection.json documentation.md
 pm2md collection.json -
