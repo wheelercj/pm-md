@@ -42,27 +42,11 @@ var rootCmd = &cobra.Command{
 	Long:    fmt.Sprintf("%s\n\n%s.\n%s", short, jsonHelp, github),
 	Example: example,
 	Version: version,
-	Args: func(cmd *cobra.Command, args []string) error {
-		if len(args) == 0 && GetTemplate {
-			return nil
-		}
-		if err := cobra.MinimumNArgs(1)(cmd, args); err != nil {
-			return err
-		}
-		if err := cobra.MaximumNArgs(2)(cmd, args); err != nil {
-			return err
-		}
-		if args[0] != "-" && !strings.HasSuffix(strings.ToLower(args[0]), ".json") {
-			return fmt.Errorf("%q must be \"-\" or end with \".json\"", args[0])
-		}
-		if len(CustomTmplPath) > 0 && !strings.HasSuffix(CustomTmplPath, ".tmpl") {
-			return fmt.Errorf("%q must end with \".tmpl\"", CustomTmplPath)
-		}
-		return nil
-	},
+	Args:    argsFunc,
 	Run: func(cmd *cobra.Command, args []string) {
 		if GetTemplate {
-			exportDefaultTemplate()
+			fileName := exportDefaultTemplate()
+			fmt.Fprintf(os.Stderr, "Created %q\n", fileName)
 			if len(args) == 0 {
 				os.Exit(0)
 			}
@@ -110,6 +94,25 @@ var rootCmd = &cobra.Command{
 			fmt.Fprintf(os.Stderr, "Created %q\n", destName)
 		}
 	},
+}
+
+func argsFunc(cmd *cobra.Command, args []string) error {
+	if len(args) == 0 && GetTemplate {
+		return nil
+	}
+	if err := cobra.MinimumNArgs(1)(cmd, args); err != nil {
+		return err
+	}
+	if err := cobra.MaximumNArgs(2)(cmd, args); err != nil {
+		return err
+	}
+	if args[0] != "-" && !strings.HasSuffix(strings.ToLower(args[0]), ".json") {
+		return fmt.Errorf("%q must be \"-\" or end with \".json\"", args[0])
+	}
+	if len(CustomTmplPath) > 0 && !strings.HasSuffix(CustomTmplPath, ".tmpl") {
+		return fmt.Errorf("%q must end with \".tmpl\"", CustomTmplPath)
+	}
+	return nil
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

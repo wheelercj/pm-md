@@ -84,9 +84,9 @@ func ScanStdin() ([]byte, error) {
 	return []byte(strings.Join(lines, "\n")), nil
 }
 
-// exportDefaultTemplate creates a new file with a unique name (it will never replace
-// an existing file) and saves the default template into it.
-func exportDefaultTemplate() {
+// exportDefaultTemplate creates a new file with a unique name (it will never replace an
+// existing file), saves the default template into it, and returns the new file's name.
+func exportDefaultTemplate() string {
 	name := CreateUniqueFileName("collection", ".tmpl")
 	file, err := os.Create(name)
 	if err != nil {
@@ -99,7 +99,8 @@ func exportDefaultTemplate() {
 		fmt.Fprintln(os.Stderr, fmt.Errorf("file.Write: %s", err))
 		os.Exit(1)
 	}
-	fmt.Fprintf(os.Stderr, "Created %q\n", name)
+
+	return name
 }
 
 var headerPathCache = make([]string, 0, 10)

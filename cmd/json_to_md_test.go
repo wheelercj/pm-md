@@ -198,6 +198,19 @@ func TestInvalidJsonToMdFile(t *testing.T) {
 	}
 }
 
+func TestJsonToMdFileExistingFileErr(t *testing.T) {
+	inputFilePath := "../samples/calendar-API.postman_collection.json"
+	jsonBytes, err := os.ReadFile(inputFilePath)
+	if err != nil {
+		t.Errorf("Failed to open %s", inputFilePath)
+		return
+	}
+	destName, err := jsonToMdFile(jsonBytes, "../LICENSE", "", nil, false)
+	if err == nil {
+		t.Errorf("jsonToMdFile(jsonBytes, \"../LICENSE\", \"\", nil, false) = (%q, nil), want non-nil error", destName)
+	}
+}
+
 func TestParseCollectionWithOldSchema(t *testing.T) {
 	inputFilePath := "../samples/calendar-API.postman_collection.json"
 	jsonBytes, err := os.ReadFile(inputFilePath)
@@ -290,6 +303,16 @@ func TestGetDestFileStdout(t *testing.T) {
 	destFile, destName, err := getDestFile("-", "", false)
 	if destFile != os.Stdout || destName != "-" || err != nil {
 		t.Errorf("getDestFile(\"-\", \"\") = (%p, %q, %q), want (%p, \"-\", nil)", destFile, destName, err, os.Stdout)
+	}
+}
+
+func TestGetDestFileExistingFileErr(t *testing.T) {
+	destFile, destName, err := getDestFile("../LICENSE", "", false)
+	if err == nil {
+		t.Errorf("getDestFile(\"../LICENSE\", \"\", false) = (%p, %q, nil), want non-nil error", destFile, destName)
+		if destName != "-" {
+			destFile.Close()
+		}
 	}
 }
 
