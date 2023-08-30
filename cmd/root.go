@@ -15,12 +15,19 @@
 package cmd
 
 import (
+	_ "embed"
 	"fmt"
 	"os"
+	"path"
 	"strings"
 
 	"github.com/spf13/cobra"
 )
+
+//go:embed default.tmpl
+var defaultTmplStr string
+
+const defaultTmplName = "default.tmpl"
 
 const short = "Convert a Postman collection to markdown documentation"
 const jsonHelp = "You can get a JSON file from Postman by exporting a collection as a v2.1.0 collection"
@@ -80,10 +87,26 @@ var rootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
+		var tmplName string
+		var tmplStr string
+		if len(CustomTmplPath) > 0 {
+			tmplBytes, err := os.ReadFile(CustomTmplPath)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, err)
+				os.Exit(1)
+			}
+			tmplStr = string(tmplBytes)
+			tmplName = path.Base(strings.ReplaceAll(CustomTmplPath, "\\", "/"))
+		} else {
+			tmplStr = defaultTmplStr
+			tmplName = defaultTmplName
+		}
+
 		destName, err = jsonToMdFile(
 			jsonBytes,
 			destName,
-			CustomTmplPath,
+			tmplName,
+			tmplStr,
 			statusRanges,
 			ConfirmReplaceExistingFile,
 		)

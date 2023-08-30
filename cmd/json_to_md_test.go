@@ -211,6 +211,10 @@ func TestJsonToMdFileExistingFileErr(t *testing.T) {
 	}
 }
 
+// func TestJsonToMdFileWithInvalidCustomTmplPath(t *testing.T) {
+
+// }
+
 func TestParseCollectionWithOldSchema(t *testing.T) {
 	inputFilePath := "../samples/calendar-API.postman_collection.json"
 	jsonBytes, err := os.ReadFile(inputFilePath)
@@ -393,5 +397,12 @@ func TestGetDestFileNameReplaceError(t *testing.T) {
 		if destName != "-" {
 			destFile.Close()
 		}
+	}
+}
+
+func TestExecuteTemplateWithInvalidTemplate(t *testing.T) {
+	err := executeTemplate(nil, nil, "api v1", "# {{ .Info.Name ")
+	if err == nil {
+		t.Errorf("executeTemplate(nil, nil, \"api v1\", \"# {{ .Info.Name \") = nil, want non-nil error")
 	}
 }
