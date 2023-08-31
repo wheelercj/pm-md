@@ -52,8 +52,8 @@ func CreateUniqueFileName(fileName, extension string) string {
 // FormatFileName takes a file name excluding any file extension and changes it, if
 // necessary, to be compatible with all major platforms. Each invalid file name
 // character is replaced with a dash, and characters that a file name cannot start or
-// end with are trimmed. The invalid invalid characters are "#<>$+%&/\\*|{}!?`'\"=: @",
-// and the invalid start or end characters are " ._-".
+// end with are trimmed. The invalid characters are `#<>$+%&/\\*|{}!?`'\"=: @`,
+// and the invalid start or end characters are ` ._-`.
 func FormatFileName(fileName string) string {
 	invalidChars := "#<>$+%&/\\*|{}!?`'\"=: @"
 	invalidEdgeChars := " ._-"
