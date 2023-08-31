@@ -16,7 +16,7 @@
 {{- end }}
 {{- range .Responses }}
 
-### sample response "{{ .Name }}" (status: {{ .Code }} {{ .Status }})
+### sample response to {{ .Name }} (status: {{ .Code }} {{ .Status }})
 
 ```{{ .Language }}
 {{- if .Body }}

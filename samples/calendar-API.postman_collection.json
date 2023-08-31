@@ -37,7 +37,7 @@
 			},
 			"response": [
 				{
-					"name": "get all accounts",
+					"name": "valid input",
 					"originalRequest": {
 						"method": "GET",
 						"header": [],
@@ -80,11 +80,11 @@
 						},
 						{
 							"key": "ETag",
-							"value": "W/\"12e-lbtv0/LF865eKyp2plWKw/jxoDg\""
+							"value": "W/\"12e-XowkCqI1BF7/9BFn6O3XcTj8CxE\""
 						},
 						{
 							"key": "Date",
-							"value": "Sun, 13 Aug 2023 22:57:01 GMT"
+							"value": "Thu, 31 Aug 2023 16:37:23 GMT"
 						},
 						{
 							"key": "Connection",
@@ -96,7 +96,7 @@
 						}
 					],
 					"cookie": [],
-					"body": "[\n    {\n        \"_id\": \"64d95ea1a74725d232891e29\",\n        \"email\": \"alksdfuie@mail.com\",\n        \"hashedPassword\": \"$2b$10$l/DUytcwyH5fgw7uTbl0OuGbXcFst4Yqdu7Ueh73GhdQYBnkAkiCC\",\n        \"scheduledAppointmentCount\": 0,\n        \"editedAppointmentCount\": 0,\n        \"canceledAppointmentCount\": 0,\n        \"createdAt\": \"2023-08-13T22:52:17.292Z\",\n        \"activeAppointments\": [],\n        \"__v\": 0\n    }\n]"
+					"body": "[\n    {\n        \"_id\": \"64de85af99bb7d63123531e8\",\n        \"email\": \"alksdfuie@mail.com\",\n        \"hashedPassword\": \"$2b$10$1Pkuaf10UTOXaY8WctU72em4HDOHiAVLxssXc2iqIEz0BbWEE/g5q\",\n        \"scheduledAppointmentCount\": 0,\n        \"editedAppointmentCount\": 0,\n        \"canceledAppointmentCount\": 0,\n        \"createdAt\": \"2023-08-17T20:40:15.775Z\",\n        \"activeAppointments\": [],\n        \"__v\": 0\n    }\n]"
 				}
 			]
 		},
@@ -128,7 +128,7 @@
 			},
 			"response": [
 				{
-					"name": "create account",
+					"name": "valid input",
 					"originalRequest": {
 						"method": "POST",
 						"header": [],
@@ -219,7 +219,7 @@
 			},
 			"response": [
 				{
-					"name": "log in",
+					"name": "valid input",
 					"originalRequest": {
 						"method": "POST",
 						"header": [],
@@ -309,7 +309,7 @@
 			},
 			"response": [
 				{
-					"name": "edit account",
+					"name": "valid input",
 					"originalRequest": {
 						"method": "PUT",
 						"header": [],
@@ -398,7 +398,7 @@
 			},
 			"response": [
 				{
-					"name": "delete account",
+					"name": "valid input",
 					"originalRequest": {
 						"method": "DELETE",
 						"header": [],

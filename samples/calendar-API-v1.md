@@ -6,18 +6,18 @@
 
 GET `/v1/account/all`
 
-### sample response "get all accounts" (status: 200 OK)
+### sample response to valid input (status: 200 OK)
 
 ```json
 [
     {
-        "_id": "64d95ea1a74725d232891e29",
+        "_id": "64de85af99bb7d63123531e8",
         "email": "alksdfuie@mail.com",
-        "hashedPassword": "$2b$10$l/DUytcwyH5fgw7uTbl0OuGbXcFst4Yqdu7Ueh73GhdQYBnkAkiCC",
+        "hashedPassword": "$2b$10$1Pkuaf10UTOXaY8WctU72em4HDOHiAVLxssXc2iqIEz0BbWEE/g5q",
         "scheduledAppointmentCount": 0,
         "editedAppointmentCount": 0,
         "canceledAppointmentCount": 0,
-        "createdAt": "2023-08-13T22:52:17.292Z",
+        "createdAt": "2023-08-17T20:40:15.775Z",
         "activeAppointments": [],
         "__v": 0
     }
@@ -39,7 +39,7 @@ POST `/v1/account/register`
 }
 ```
 
-### sample response "create account" (status: 201 Created)
+### sample response to valid input (status: 201 Created)
 
 ```json
 {
@@ -62,7 +62,7 @@ POST `/v1/account/login`
 }
 ```
 
-### sample response "log in" (status: 200 OK)
+### sample response to valid input (status: 200 OK)
 
 ```json
 {
@@ -87,7 +87,7 @@ PUT `/v1/account`
 }
 ```
 
-### sample response "edit account" (status: 200 OK)
+### sample response to valid input (status: 200 OK)
 
 ```html
 Update successful
@@ -108,7 +108,7 @@ DELETE `/v1/account`
 }
 ```
 
-### sample response "delete account" (status: 200 OK)
+### sample response to valid input (status: 200 OK)
 
 ```html
 Account deleted
