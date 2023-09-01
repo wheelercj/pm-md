@@ -100,3 +100,41 @@ func TestArgsFuncWithInvalidCustomTmplPath(t *testing.T) {
 	}
 	CustomTmplPath = ""
 }
+
+func TestLoadTmplDefault(t *testing.T) {
+	tmplName, tmplStr, err := loadTmpl("")
+	if tmplName != defaultTmplName {
+		t.Errorf("loadTmpl(\"\") returned template name %q, want %q", tmplName, defaultTmplName)
+	}
+	assertNoDiff(t, tmplStr, defaultTmplStr, "\r\n")
+	if err != nil {
+		t.Errorf("loadTmpl(\"\") returned error %q, want nil error", err)
+	}
+}
+
+func TestLoadTmplCustom(t *testing.T) {
+	customTmplPath := "../samples/custom.tmpl"
+	ansName, ansTmplStr, err := loadTmpl(customTmplPath)
+	wantName := "custom.tmpl"
+	customBytes, err := os.ReadFile(customTmplPath)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	wantTmplStr := string(customBytes)
+
+	if ansName != wantName {
+		t.Errorf("loadTmpl(\"../samples/custom.tmpl\") returned template name %q, want %q", ansName, wantName)
+	}
+	assertNoDiff(t, ansTmplStr, wantTmplStr, "\r\n")
+	if err != nil {
+		t.Errorf("loadTmpl(\"../samples/custom.tmpl\") returned error %q, want nil error", err)
+	}
+}
+
+func TestLoadTmplNonexistent(t *testing.T) {
+	tmplName, tmplStr, err := loadTmpl("nonexistent.tmpl")
+	if err == nil {
+		t.Errorf("loadTmpl(\"nonexistent.tmpl\") = (%q, len %d template, nil), want non-nil error", tmplName, len(tmplStr))
+	}
+}

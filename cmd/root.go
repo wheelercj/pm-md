@@ -87,19 +87,10 @@ var rootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		var tmplName string
-		var tmplStr string
-		if len(CustomTmplPath) > 0 {
-			tmplBytes, err := os.ReadFile(CustomTmplPath)
-			if err != nil {
-				fmt.Fprintln(os.Stderr, err)
-				os.Exit(1)
-			}
-			tmplStr = string(tmplBytes)
-			tmplName = path.Base(strings.ReplaceAll(CustomTmplPath, "\\", "/"))
-		} else {
-			tmplStr = defaultTmplStr
-			tmplName = defaultTmplName
+		tmplName, tmplStr, err := loadTmpl(CustomTmplPath)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
 		}
 
 		destName, err = jsonToMdFile(
@@ -176,4 +167,22 @@ func init() {
 		"Confirm whether to replace a chosen existing output file",
 	)
 	rootCmd.Flags().MarkHidden("replace")
+}
+
+// loadTmpl loads a template's name and the template itself into strings. If the given
+// custom template path is empty, the default template is used.
+func loadTmpl(customTmplPath string) (tmplName string, tmplStr string, err error) {
+	if len(customTmplPath) > 0 {
+		tmplBytes, err := os.ReadFile(customTmplPath)
+		if err != nil {
+			return "", "", err
+		}
+		tmplStr = string(tmplBytes)
+		tmplName = path.Base(strings.ReplaceAll(customTmplPath, "\\", "/"))
+	} else {
+		tmplStr = defaultTmplStr
+		tmplName = defaultTmplName
+	}
+
+	return tmplName, tmplStr, nil
 }
