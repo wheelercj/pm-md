@@ -15,12 +15,19 @@
 package cmd
 
 import (
+	_ "embed"
 	"fmt"
 	"os"
+	"path"
 	"strings"
 
 	"github.com/spf13/cobra"
 )
+
+//go:embed default.tmpl
+var defaultTmplStr string
+
+const defaultTmplName = "default.tmpl"
 
 const short = "Convert a Postman collection to markdown documentation"
 const jsonHelp = "You can get a JSON file from Postman by exporting a collection as a v2.1.0 collection"
@@ -43,57 +50,7 @@ var rootCmd = &cobra.Command{
 	Example: example,
 	Version: version,
 	Args:    argsFunc,
-	Run: func(cmd *cobra.Command, args []string) {
-		if GetTemplate {
-			fileName := exportDefaultTemplate()
-			fmt.Fprintf(os.Stderr, "Created %q\n", fileName)
-			if len(args) == 0 {
-				os.Exit(0)
-			}
-		}
-		jsonFilePath := args[0]
-		var destName string
-		if len(args) == 2 {
-			destName = args[1]
-		}
-		// fmt.Printf("json file path: %q\n", jsonFilePath)
-		// fmt.Printf("output destination: %q\n", destName)
-		// fmt.Printf("statuses: %q\n", Statuses)
-		// fmt.Println("show response names:", ShowResponseNames)
-		// fmt.Println("get template:", GetTemplate)
-		// fmt.Printf("custom template: %q\n", CustomTmplPath)
-
-		statusRanges, err := parseStatusRanges(Statuses)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(1)
-		}
-
-		var jsonBytes []byte
-		if jsonFilePath == "-" {
-			jsonBytes, err = ScanStdin()
-		} else {
-			jsonBytes, err = os.ReadFile(jsonFilePath)
-		}
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(1)
-		}
-
-		destName, err = jsonToMdFile(
-			jsonBytes,
-			destName,
-			CustomTmplPath,
-			statusRanges,
-			ConfirmReplaceExistingFile,
-		)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(1)
-		} else if destName != "-" {
-			fmt.Fprintf(os.Stderr, "Created %q\n", destName)
-		}
-	},
+	RunE:    runFunc,
 }
 
 func argsFunc(cmd *cobra.Command, args []string) error {
@@ -112,6 +69,57 @@ func argsFunc(cmd *cobra.Command, args []string) error {
 	if len(CustomTmplPath) > 0 && !strings.HasSuffix(CustomTmplPath, ".tmpl") {
 		return fmt.Errorf("%q must end with \".tmpl\"", CustomTmplPath)
 	}
+	return nil
+}
+
+func runFunc(cmd *cobra.Command, args []string) error {
+	if GetTemplate {
+		fileName := exportDefaultTemplate()
+		fmt.Fprintf(os.Stderr, "Created %q\n", fileName)
+		if len(args) == 0 {
+			os.Exit(0)
+		}
+	}
+	jsonFilePath := args[0]
+	var destName string
+	if len(args) == 2 {
+		destName = args[1]
+	}
+
+	statusRanges, err := parseStatusRanges(Statuses)
+	if err != nil {
+		return err
+	}
+
+	var jsonBytes []byte
+	if jsonFilePath == "-" {
+		jsonBytes, err = ScanStdin()
+	} else {
+		jsonBytes, err = os.ReadFile(jsonFilePath)
+	}
+	if err != nil {
+		return err
+	}
+
+	tmplName, tmplStr, err := loadTmpl(CustomTmplPath)
+	if err != nil {
+		return err
+	}
+
+	destName, err = jsonToMdFile(
+		jsonBytes,
+		destName,
+		tmplName,
+		tmplStr,
+		statusRanges,
+		ConfirmReplaceExistingFile,
+	)
+	if err != nil {
+		return err
+	} else if destName != "-" {
+		fmt.Fprintf(os.Stderr, "Created %q\n", destName)
+	}
+
 	return nil
 }
 
@@ -153,4 +161,22 @@ func init() {
 		"Confirm whether to replace a chosen existing output file",
 	)
 	rootCmd.Flags().MarkHidden("replace")
+}
+
+// loadTmpl loads a template's name and the template itself into strings. If the given
+// custom template path is empty, the default template is used.
+func loadTmpl(customTmplPath string) (tmplName string, tmplStr string, err error) {
+	if len(customTmplPath) > 0 {
+		tmplBytes, err := os.ReadFile(customTmplPath)
+		if err != nil {
+			return "", "", err
+		}
+		tmplStr = string(tmplBytes)
+		tmplName = path.Base(strings.ReplaceAll(customTmplPath, "\\", "/"))
+	} else {
+		tmplStr = defaultTmplStr
+		tmplName = defaultTmplName
+	}
+
+	return tmplName, tmplStr, nil
 }

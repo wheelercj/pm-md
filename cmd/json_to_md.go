@@ -1,28 +1,36 @@
+// Copyright 2023 Chris Wheeler
+
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+// 	http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package cmd
 
 import (
-	_ "embed"
 	"encoding/json"
 	"fmt"
 	"html/template"
 	"os"
-	"path"
 	"regexp"
 	"slices"
 	"strconv"
 	"strings"
 )
 
-//go:embed default.tmpl
-var defaultTmplStr string
-var defaultTmplName = "default.tmpl"
-
 // jsonToMdFile converts JSON bytes to markdown, prints the markdown to a file or
 // stdout, and returns the destination's name. If the destination name is "-", output
 // goes to stdout. If the destination's name is empty, a file is created with a unique
 // name based on the given JSON. Only an empty destination name will be changed from
 // what is given before being returned.
-func jsonToMdFile(jsonBytes []byte, destName string, customTmplPath string, statusRanges [][]int, confirmReplaceExistingFile bool) (string, error) {
+func jsonToMdFile(jsonBytes []byte, destName, tmplName, tmplStr string, statusRanges [][]int, confirmReplaceExistingFile bool) (string, error) {
 	collection, err := parseCollection(jsonBytes)
 	if err != nil {
 		return "", fmt.Errorf("parseCollection: %s", err)
@@ -41,8 +49,8 @@ func jsonToMdFile(jsonBytes []byte, destName string, customTmplPath string, stat
 		defer destFile.Close()
 	}
 
-	if err := executeTemplate(destFile, collection, customTmplPath); err != nil {
-		return "", fmt.Errorf("executeTemplate: %s", err)
+	if err = executeTemplate(destFile, collection, tmplName, tmplStr); err != nil {
+		return "", err
 	}
 
 	return destName, nil
@@ -159,28 +167,12 @@ func getDestFile(destName, collectionName string, confirmReplaceExistingFile boo
 }
 
 // executeTemplate uses a template and FuncMap to convert the collection to markdown and
-// saves to the given destination file. The destination file is not closed. If the given
-// custom template path is empty, the default template is used.
-func executeTemplate(destFile *os.File, collection *Collection, customTmplPath string) error {
-	var tmpl *template.Template
-	var err error
-	if len(customTmplPath) > 0 {
-		tmplBytes, err := os.ReadFile(customTmplPath)
-		if err != nil {
-			return fmt.Errorf("os.ReadFile: %s", err)
-		}
-		name := path.Base(strings.ReplaceAll(customTmplPath, "\\", "/"))
-		tmpl, err = template.New(name).Funcs(funcMap).Parse(string(tmplBytes))
-	} else {
-		tmpl, err = template.New(defaultTmplName).Funcs(funcMap).Parse(defaultTmplStr)
-	}
+// saves to the given destination file. The destination file is not closed.
+func executeTemplate(destFile *os.File, collection *Collection, tmplName, tmplStr string) error {
+	tmpl, err := template.New(tmplName).Funcs(funcMap).Parse(tmplStr)
 	if err != nil {
-		return fmt.Errorf("*Template.Parse: %s", err)
-	}
-	err = tmpl.Execute(destFile, collection)
-	if err != nil {
-		return fmt.Errorf("tmpl.Execute: %s", err)
+		return fmt.Errorf("Template parsing error: %s", err)
 	}
 
-	return nil
+	return tmpl.Execute(destFile, collection)
 }

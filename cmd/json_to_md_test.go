@@ -28,7 +28,7 @@ import (
 // default template is used. If the given output path is empty, a new file is created
 // with a unique name based on the JSON. The wanted output path is the path to an
 // existing file containing the wanted output.
-func assertJsonToMdFileNoDiff(t *testing.T, inputJsonFilePath, customTemplatePath, outputPath, wantOutputPath string) {
+func assertJsonToMdFileNoDiff(t *testing.T, inputJsonFilePath, customTmplPath, outputPath, wantOutputPath string) {
 	// Skip this test if unique file name creation isn't working correctly.
 	TestCreateUniqueFileName(t)
 	TestCreateUniqueFileNamePanic(t)
@@ -45,10 +45,17 @@ func assertJsonToMdFileNoDiff(t *testing.T, inputJsonFilePath, customTemplatePat
 		t.Errorf("Failed to open %q", inputJsonFilePath)
 		return
 	}
+	tmplName, tmplStr, err := loadTmpl(customTmplPath)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+
 	outputPath, err = jsonToMdFile(
 		jsonBytes,
 		outputPath,
-		customTemplatePath,
+		tmplName,
+		tmplStr,
 		nil,
 		false,
 	)
@@ -189,7 +196,12 @@ func TestInvalidJsonToMdFile(t *testing.T) {
 				"_exporter_id": "23363106"
 			},
 	`)
-	destName, err := jsonToMdFile(invalidJson, "-", "", nil, false)
+	tmplName, tmplStr, err := loadTmpl("")
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	destName, err := jsonToMdFile(invalidJson, "-", tmplName, tmplStr, nil, false)
 	if err == nil {
 		t.Error("Error expected")
 		if destName != "-" {
@@ -205,11 +217,20 @@ func TestJsonToMdFileExistingFileErr(t *testing.T) {
 		t.Errorf("Failed to open %s", inputFilePath)
 		return
 	}
-	destName, err := jsonToMdFile(jsonBytes, "../LICENSE", "", nil, false)
+	tmplName, tmplStr, err := loadTmpl("")
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	destName, err := jsonToMdFile(jsonBytes, "../LICENSE", tmplName, tmplStr, nil, false)
 	if err == nil {
 		t.Errorf("jsonToMdFile(jsonBytes, \"../LICENSE\", \"\", nil, false) = (%q, nil), want non-nil error", destName)
 	}
 }
+
+// func TestJsonToMdFileWithInvalidCustomTmplPath(t *testing.T) {
+
+// }
 
 func TestParseCollectionWithOldSchema(t *testing.T) {
 	inputFilePath := "../samples/calendar-API.postman_collection.json"
@@ -393,5 +414,12 @@ func TestGetDestFileNameReplaceError(t *testing.T) {
 		if destName != "-" {
 			destFile.Close()
 		}
+	}
+}
+
+func TestExecuteTemplateWithInvalidTemplate(t *testing.T) {
+	err := executeTemplate(nil, nil, "api v1", "# {{ .Info.Name ")
+	if err == nil {
+		t.Errorf("executeTemplate(nil, nil, \"api v1\", \"# {{ .Info.Name \") = nil, want non-nil error")
 	}
 }
