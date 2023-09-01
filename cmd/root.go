@@ -50,64 +50,7 @@ var rootCmd = &cobra.Command{
 	Example: example,
 	Version: version,
 	Args:    argsFunc,
-	Run: func(cmd *cobra.Command, args []string) {
-		if GetTemplate {
-			fileName := exportDefaultTemplate()
-			fmt.Fprintf(os.Stderr, "Created %q\n", fileName)
-			if len(args) == 0 {
-				os.Exit(0)
-			}
-		}
-		jsonFilePath := args[0]
-		var destName string
-		if len(args) == 2 {
-			destName = args[1]
-		}
-		// fmt.Printf("json file path: %q\n", jsonFilePath)
-		// fmt.Printf("output destination: %q\n", destName)
-		// fmt.Printf("statuses: %q\n", Statuses)
-		// fmt.Println("show response names:", ShowResponseNames)
-		// fmt.Println("get template:", GetTemplate)
-		// fmt.Printf("custom template: %q\n", CustomTmplPath)
-
-		statusRanges, err := parseStatusRanges(Statuses)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(1)
-		}
-
-		var jsonBytes []byte
-		if jsonFilePath == "-" {
-			jsonBytes, err = ScanStdin()
-		} else {
-			jsonBytes, err = os.ReadFile(jsonFilePath)
-		}
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(1)
-		}
-
-		tmplName, tmplStr, err := loadTmpl(CustomTmplPath)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(1)
-		}
-
-		destName, err = jsonToMdFile(
-			jsonBytes,
-			destName,
-			tmplName,
-			tmplStr,
-			statusRanges,
-			ConfirmReplaceExistingFile,
-		)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(1)
-		} else if destName != "-" {
-			fmt.Fprintf(os.Stderr, "Created %q\n", destName)
-		}
-	},
+	RunE:    runFunc,
 }
 
 func argsFunc(cmd *cobra.Command, args []string) error {
@@ -126,6 +69,57 @@ func argsFunc(cmd *cobra.Command, args []string) error {
 	if len(CustomTmplPath) > 0 && !strings.HasSuffix(CustomTmplPath, ".tmpl") {
 		return fmt.Errorf("%q must end with \".tmpl\"", CustomTmplPath)
 	}
+	return nil
+}
+
+func runFunc(cmd *cobra.Command, args []string) error {
+	if GetTemplate {
+		fileName := exportDefaultTemplate()
+		fmt.Fprintf(os.Stderr, "Created %q\n", fileName)
+		if len(args) == 0 {
+			os.Exit(0)
+		}
+	}
+	jsonFilePath := args[0]
+	var destName string
+	if len(args) == 2 {
+		destName = args[1]
+	}
+
+	statusRanges, err := parseStatusRanges(Statuses)
+	if err != nil {
+		return err
+	}
+
+	var jsonBytes []byte
+	if jsonFilePath == "-" {
+		jsonBytes, err = ScanStdin()
+	} else {
+		jsonBytes, err = os.ReadFile(jsonFilePath)
+	}
+	if err != nil {
+		return err
+	}
+
+	tmplName, tmplStr, err := loadTmpl(CustomTmplPath)
+	if err != nil {
+		return err
+	}
+
+	destName, err = jsonToMdFile(
+		jsonBytes,
+		destName,
+		tmplName,
+		tmplStr,
+		statusRanges,
+		ConfirmReplaceExistingFile,
+	)
+	if err != nil {
+		return err
+	} else if destName != "-" {
+		fmt.Fprintf(os.Stderr, "Created %q\n", destName)
+	}
+
 	return nil
 }
 

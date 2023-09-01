@@ -101,6 +101,47 @@ func TestArgsFuncWithInvalidCustomTmplPath(t *testing.T) {
 	CustomTmplPath = ""
 }
 
+func TestRunFuncWithInvalidStatuses(t *testing.T) {
+	jsonFilePath := "../samples/calendar-API.postman_collection.json"
+	Statuses = "this is not a valid statuses value"
+	err := runFunc(nil, []string{jsonFilePath})
+	Statuses = ""
+	if err == nil {
+		t.Error("runFunc(nil, []string{\"\"}) with invalid statuses returned nil, want non-nil error")
+	}
+}
+
+func TestRunFuncWithInvalidJsonPath(t *testing.T) {
+	jsonFilePath := "nonexistent.json"
+	err := runFunc(nil, []string{jsonFilePath})
+	if err == nil {
+		t.Errorf("runFunc(nil, []string{%q}) = nil, want non-nil error", jsonFilePath)
+	}
+}
+
+func TestRunFuncWithInvalidCustomTmplPath(t *testing.T) {
+	jsonFilePath := "../samples/calendar-API.postman_collection.json"
+	CustomTmplPath = "nonexistent.tmpl"
+	err := runFunc(nil, []string{jsonFilePath})
+	CustomTmplPath = ""
+	if err == nil {
+		t.Errorf("runFunc(nil, []string{%q}) = nil, want non-nil error", jsonFilePath)
+	}
+}
+
+func TestRunFuncExistingFileError(t *testing.T) {
+	jsonFilePath := "../samples/calendar-API.postman_collection.json"
+	destPath := "../samples/calendar-API-v1.md"
+	if !FileExists(destPath) {
+		t.Errorf("Test broken. Expected file %q to exist", destPath)
+		return
+	}
+	err := runFunc(nil, []string{jsonFilePath, destPath})
+	if err == nil {
+		t.Errorf("runFunc(nil, []string{%q, %q}) = nil, want non-nil error", jsonFilePath, destPath)
+	}
+}
+
 func TestLoadTmplDefault(t *testing.T) {
 	tmplName, tmplStr, err := loadTmpl("")
 	if tmplName != defaultTmplName {
