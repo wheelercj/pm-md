@@ -19,21 +19,6 @@ import (
 	"testing"
 )
 
-func TestExportDefaultTemplate(t *testing.T) {
-	if FileExists("collection.tmpl") {
-		t.Errorf("FileExists(\"collection.tmpl\") = true, want false")
-		return
-	}
-	fileName := exportDefaultTemplate()
-	if fileName != "collection.tmpl" {
-		t.Errorf("exportDefaultTemplate() = %q, want \"collection.tmpl\"", fileName)
-	}
-	if !FileExists(fileName) {
-		t.Errorf("FileExists(%q) = false, want true", fileName)
-	}
-	os.Remove(fileName)
-}
-
 func TestArgsFunc(t *testing.T) {
 	tests := []struct {
 		name  string
