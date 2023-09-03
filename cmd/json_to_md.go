@@ -33,7 +33,7 @@ import (
 func jsonToMdFile(jsonBytes []byte, destName, tmplName, tmplStr string, statusRanges [][]int, confirmReplaceExistingFile bool) (string, error) {
 	collection, err := parseCollection(jsonBytes)
 	if err != nil {
-		return "", fmt.Errorf("parseCollection: %s", err)
+		return "", err
 	}
 	filterResponsesByStatus(collection, statusRanges)
 	if v, err := getVersion(collection.Routes); err == nil {
