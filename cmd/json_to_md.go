@@ -36,7 +36,7 @@ func jsonToMdFile(jsonBytes []byte, destName, tmplName, tmplStr string, statusRa
 		return "", err
 	}
 	filterResponsesByStatus(collection, statusRanges)
-	if v, err := getVersion(collection.Routes); err == nil {
+	if v, err := getVersion(collection.Endpoints); err == nil {
 		collection.Info.Name += " " + v
 	}
 
@@ -109,9 +109,9 @@ func filterResponsesByStatus(collection *Collection, statusRanges [][]int) {
 	if statusRanges == nil || len(statusRanges) == 0 {
 		return
 	}
-	for i, route := range collection.Routes {
-		for j := len(route.Responses) - 1; j >= 0; j-- {
-			response := route.Responses[j]
+	for i, endpoint := range collection.Endpoints {
+		for j := len(endpoint.Responses) - 1; j >= 0; j-- {
+			response := endpoint.Responses[j]
 			inRange := false
 			for _, statusRange := range statusRanges {
 				if response.Code >= statusRange[0] && response.Code <= statusRange[1] {
@@ -120,19 +120,19 @@ func filterResponsesByStatus(collection *Collection, statusRanges [][]int) {
 				}
 			}
 			if !inRange {
-				route.Responses = slices.Delete(route.Responses, j, j+1)
+				endpoint.Responses = slices.Delete(endpoint.Responses, j, j+1)
 			}
-			collection.Routes[i] = route
+			collection.Endpoints[i] = endpoint
 		}
 	}
 }
 
 // getVersion returns the version number of a collection. If the collection's first
-// route has a version number like `/v1/something`, then `v1` is returned. If no version
-// number is found, an error is returned.
-func getVersion(routes []Route) (string, error) {
-	if len(routes) > 0 && len(routes[0].Request.Url.Path) > 0 {
-		maybeVersion := routes[0].Request.Url.Path[0]
+// endpoint has a version number like `/v1/something`, then `v1` is returned. If no
+// version number is found, an error is returned.
+func getVersion(endpoints []Endpoint) (string, error) {
+	if len(endpoints) > 0 && len(endpoints[0].Request.Url.Path) > 0 {
+		maybeVersion := endpoints[0].Request.Url.Path[0]
 		if matched, err := regexp.Match(`v\d+`, []byte(maybeVersion)); err == nil && matched {
 			return maybeVersion, nil
 		}

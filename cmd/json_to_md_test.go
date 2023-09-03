@@ -277,8 +277,8 @@ func TestFilterResponses(t *testing.T) {
 	}
 
 	filterResponsesByStatus(collection, [][]int{{200, 200}})
-	for _, route := range collection.Routes {
-		for _, response := range route.Responses {
+	for _, endpoint := range collection.Endpoints {
+		for _, response := range endpoint.Responses {
 			if response.Code != 200 {
 				t.Errorf("want 200, got %d", response.Code)
 				return
@@ -287,34 +287,34 @@ func TestFilterResponses(t *testing.T) {
 	}
 }
 
-func TestGetVersionWithoutVersionedRoutes(t *testing.T) {
+func TestGetVersionWithoutVersionedEndpoints(t *testing.T) {
 	collection, err := getCollection(t)
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	if len(collection.Routes) == 0 {
-		t.Error("No routes to test")
+	if len(collection.Endpoints) == 0 {
+		t.Error("No endpoints to test")
 		return
 	}
 
-	for i, route := range collection.Routes {
-		if len(route.Request.Url.Path) == 0 {
-			t.Errorf("Request missing path: %v", route.Request)
+	for i, endpoint := range collection.Endpoints {
+		if len(endpoint.Request.Url.Path) == 0 {
+			t.Errorf("Request missing path: %v", endpoint.Request)
 			return
 		}
 
-		// Delete any version number from the route.
-		maybeVersion := route.Request.Url.Path[0]
+		// Delete any version number from the endpoint.
+		maybeVersion := endpoint.Request.Url.Path[0]
 		if strings.HasPrefix(maybeVersion, "v") {
 			maybeNumber := strings.TrimPrefix(maybeVersion, "v")
 			if _, err := strconv.Atoi(maybeNumber); err == nil {
-				collection.Routes[i].Request.Url.Path = route.Request.Url.Path[1:]
+				collection.Endpoints[i].Request.Url.Path = endpoint.Request.Url.Path[1:]
 			}
 		}
 	}
 
-	version, err := getVersion(collection.Routes)
+	version, err := getVersion(collection.Endpoints)
 	if err == nil {
 		t.Errorf("getVersion returned (%q, nil), want non-nil error", version)
 	}

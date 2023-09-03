@@ -37,6 +37,9 @@ var funcMap = template.FuncMap{
 	"formatHeaderLink": formatHeaderLink,
 }
 
+// As each endpoint in an API could have multiple requests in Postman, the endpoints
+// slice below may have "duplicates".
+
 type Collection struct {
 	Info struct {
 		PostmanId  string `json:"_postman_id"`
@@ -44,8 +47,8 @@ type Collection struct {
 		Schema     string `json:"schema"`
 		ExporterId string `json:"_exporter_id"`
 	} `json:"info"`
-	Routes []Route `json:"item"`
-	Events []struct {
+	Endpoints []Endpoint `json:"item"`
+	Events    []struct {
 		Listen string `json:"listen"`
 		Script struct {
 			Type string   `json:"type"`
@@ -59,7 +62,7 @@ type Collection struct {
 	} `json:"variable"`
 }
 
-type Route struct {
+type Endpoint struct {
 	Name                    string `json:"name"`
 	ProtocolProfileBehavior struct {
 		DisableBodyPruning bool `json:"disableBodyPruning"`

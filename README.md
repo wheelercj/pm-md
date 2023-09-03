@@ -51,7 +51,7 @@ In a template, you can use the variables and functions defined in [types.go](cmd
 Here's how to add a table of contents with links that work in GitHub:
 
 ```
-{{ range .Routes }}
+{{ range .Endpoints }}
 * {{ formatHeaderLink .Name }}
 {{- end }}
 ```
