@@ -37,10 +37,10 @@ func jsonToMdFile(jsonBytes []byte, destName, tmplName, tmplStr string, statusRa
 	}
 	filterResponsesByStatus(collection, statusRanges)
 	if v, err := getVersion(collection.Endpoints); err == nil {
-		collection.Info.Name += " " + v
+		collection.Name += " " + v
 	}
 
-	destFile, destName, err := getDestFile(destName, collection.Info.Name, confirmReplaceExistingFile)
+	destFile, destName, err := getDestFile(destName, collection.Name, confirmReplaceExistingFile)
 	if err != nil {
 		return "", err
 	}
@@ -63,7 +63,7 @@ func parseCollection(jsonBytes []byte) (*Collection, error) {
 	if err := json.Unmarshal(jsonBytes, &collection); err != nil {
 		return nil, err
 	}
-	if collection.Info.Schema != "https://schema.getpostman.com/json/collection/v2.1.0/collection.json" {
+	if collection.Schema != "https://schema.getpostman.com/json/collection/v2.1.0/collection.json" {
 		return nil, fmt.Errorf("Unknown JSON schema. When exporting from Postman, export as Collection v2.1.0")
 	}
 

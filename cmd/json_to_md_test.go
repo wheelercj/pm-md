@@ -60,7 +60,7 @@ func assertJsonToMdFileNoDiff(t *testing.T, inputJsonFilePath, customTmplPath, o
 		false,
 	)
 	if err != nil {
-		t.Errorf("jsonToMdFile: %s", err)
+		t.Error(err)
 		return
 	}
 	defer os.Remove(outputPath)
@@ -418,8 +418,8 @@ func TestGetDestFileNameReplaceError(t *testing.T) {
 }
 
 func TestExecuteTemplateWithInvalidTemplate(t *testing.T) {
-	err := executeTemplate(nil, nil, "api v1", "# {{ .Info.Name ")
+	err := executeTemplate(nil, nil, "api v1", "# {{ .Name ")
 	if err == nil {
-		t.Errorf("executeTemplate(nil, nil, \"api v1\", \"# {{ .Info.Name \") = nil, want non-nil error")
+		t.Errorf("executeTemplate(nil, nil, \"api v1\", \"# {{ .Name \") = nil, want non-nil error")
 	}
 }
