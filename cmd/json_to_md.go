@@ -47,6 +47,8 @@ func jsonToMdFile(jsonBytes []byte, destName, tmplName, tmplStr string, statusRa
 	}
 
 	if err = executeTemplate(destFile, collection, tmplName, tmplStr); err != nil {
+		destFile.Close()
+		os.Remove(destName)
 		return "", err
 	}
 
