@@ -19,7 +19,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"slices"
 	"strings"
 )
 
@@ -101,41 +100,4 @@ func exportDefaultTemplate() string {
 	}
 
 	return name
-}
-
-var headerPathCache = make([]string, 0, 10)
-
-// formatHeaderLink formats a markdown header body as a markdown link to the header
-// compatible with GitHub's markdown rendering. When GitHub and this function find
-// duplicate headers, they append `-1` to the header link for the second occurence, `-2`
-// for the third, and so on.
-func formatHeaderLink(headerBody string) string {
-	headerPath := formatHeaderPath(headerBody)
-	uniqueHeaderPath := headerPath
-	for i := 1; slices.Contains(headerPathCache, uniqueHeaderPath); i++ {
-		uniqueHeaderPath = fmt.Sprintf("%s-%d", headerPath, i)
-	}
-	headerPathCache = append(headerPathCache, uniqueHeaderPath)
-	return fmt.Sprintf("[%s](%s)", headerBody, uniqueHeaderPath)
-}
-
-// formatHeaderPath formats a markdown header body as a relative link path compatible
-// with GitHub's markdown rendering. Letters are lowercased, leading spaces are removed,
-// remaining spaces are replaced with dashes, special characters except dashes and
-// underscores are removed, and one `#` will be prepended. Current limitation:
-// formatHeaderPath ignores all emoji whereas GitHub removes some emoji.
-func formatHeaderPath(headerBody string) string {
-	headerBody = strings.ReplaceAll(
-		strings.TrimLeft(strings.ToLower(headerBody), " "), " ", "-",
-	)
-	toRemove := "=+!@#$%^&*()|\\'\";:/?.,<>[]{}`~"
-	result := make([]rune, 0, len(headerBody)/2)
-	result = append(result, '#')
-	for _, ch := range headerBody {
-		if !strings.Contains(toRemove, string(ch)) {
-			result = append(result, ch)
-		}
-	}
-
-	return string(result)
 }

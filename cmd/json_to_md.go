@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"html/template"
 	"os"
-	"regexp"
 	"slices"
 	"strconv"
 	"strings"
@@ -36,11 +35,9 @@ func jsonToMdFile(jsonBytes []byte, destName, tmplName, tmplStr string, statusRa
 		return "", err
 	}
 	filterResponsesByStatus(collection, statusRanges)
-	if v, err := getVersion(collection.Endpoints); err == nil {
-		collection.Name += " " + v
-	}
 
-	destFile, destName, err := getDestFile(destName, collection.Name, confirmReplaceExistingFile)
+	collectionName := collection["info"].(map[string]any)["name"].(string)
+	destFile, destName, err := getDestFile(destName, collectionName, confirmReplaceExistingFile)
 	if err != nil {
 		return "", err
 	}
@@ -56,18 +53,17 @@ func jsonToMdFile(jsonBytes []byte, destName, tmplName, tmplStr string, statusRa
 	return destName, nil
 }
 
-// parseCollection converts a collection from a slice of bytes of JSON to a Collection
-// instance.
-func parseCollection(jsonBytes []byte) (*Collection, error) {
-	var collection Collection
+// parseCollection converts a collection from a slice of bytes of JSON to a map.
+func parseCollection(jsonBytes []byte) (map[string]any, error) {
+	var collection map[string]any
 	if err := json.Unmarshal(jsonBytes, &collection); err != nil {
 		return nil, err
 	}
-	if collection.Schema != "https://schema.getpostman.com/json/collection/v2.1.0/collection.json" {
+	if collection["info"].(map[string]any)["schema"] != "https://schema.getpostman.com/json/collection/v2.1.0/collection.json" {
 		return nil, fmt.Errorf("Unknown JSON schema. When exporting from Postman, export as Collection v2.1.0")
 	}
 
-	return &collection, nil
+	return collection, nil
 }
 
 // parseStatusRanges converts a string of status ranges to a slice of slices of
@@ -105,39 +101,30 @@ func parseStatusRanges(statusesStr string) ([][]int, error) {
 
 // filterResponsesByStatus removes all sample responses with status codes outside the
 // given range(s). If no status ranges are given, the collection remains unchanged.
-func filterResponsesByStatus(collection *Collection, statusRanges [][]int) {
+func filterResponsesByStatus(collection map[string]any, statusRanges [][]int) {
 	if statusRanges == nil || len(statusRanges) == 0 {
 		return
 	}
-	for i, endpoint := range collection.Endpoints {
-		for j := len(endpoint.Responses) - 1; j >= 0; j-- {
-			response := endpoint.Responses[j]
+	endpoints := collection["item"].([]any)
+	for _, endpointAny := range endpoints {
+		endpoint := endpointAny.(map[string]any)
+		responses := endpoint["response"].([]any)
+		for j := len(responses) - 1; j >= 0; j-- {
+			response := responses[j].(map[string]any)
 			inRange := false
 			for _, statusRange := range statusRanges {
-				if response.Code >= statusRange[0] && response.Code <= statusRange[1] {
+				code := int(response["code"].(float64))
+				if code >= statusRange[0] && code <= statusRange[1] {
 					inRange = true
 					break
 				}
 			}
 			if !inRange {
-				endpoint.Responses = slices.Delete(endpoint.Responses, j, j+1)
+				responses = slices.Delete(responses, j, j+1)
+				endpoint["response"] = responses
 			}
-			collection.Endpoints[i] = endpoint
 		}
 	}
-}
-
-// getVersion returns the version number of a collection. If the collection's first
-// endpoint has a version number like `/v1/something`, then `v1` is returned. If no
-// version number is found, an error is returned.
-func getVersion(endpoints []Endpoint) (string, error) {
-	if len(endpoints) > 0 && len(endpoints[0].Request.Url.Path) > 0 {
-		maybeVersion := endpoints[0].Request.Url.Path[0]
-		if matched, err := regexp.Match(`v\d+`, []byte(maybeVersion)); err == nil && matched {
-			return maybeVersion, nil
-		}
-	}
-	return "", fmt.Errorf("No version number found")
 }
 
 // getDestFile gets the destination file and its name. If the given destination name is
@@ -168,7 +155,7 @@ func getDestFile(destName, collectionName string, confirmReplaceExistingFile boo
 
 // executeTemplate uses a template and FuncMap to convert the collection to markdown and
 // saves to the given destination file. The destination file is not closed.
-func executeTemplate(destFile *os.File, collection *Collection, tmplName, tmplStr string) error {
+func executeTemplate(destFile *os.File, collection map[string]any, tmplName, tmplStr string) error {
 	tmpl, err := template.New(tmplName).Funcs(funcMap).Parse(tmplStr)
 	if err != nil {
 		return fmt.Errorf("Template parsing error: %s", err)

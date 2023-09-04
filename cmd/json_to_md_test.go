@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"os"
 	"reflect"
-	"strconv"
 	"strings"
 	"testing"
 )
@@ -228,10 +227,6 @@ func TestJsonToMdFileExistingFileErr(t *testing.T) {
 	}
 }
 
-// func TestJsonToMdFileWithInvalidCustomTmplPath(t *testing.T) {
-
-// }
-
 func TestParseCollectionWithOldSchema(t *testing.T) {
 	inputFilePath := "../samples/calendar-API.postman_collection.json"
 	jsonBytes, err := os.ReadFile(inputFilePath)
@@ -250,11 +245,11 @@ func TestParseCollectionWithOldSchema(t *testing.T) {
 	jsonStr = strings.Replace(jsonStr, v210Url, v200Url, 1)
 
 	if collection, err := parseCollection([]byte(jsonStr)); err == nil {
-		t.Errorf("want (nil, error), got a nil error and a non-nil collection: %v", *collection)
+		t.Errorf("want (nil, error), got a nil error and a non-nil collection: %v", collection)
 	}
 }
 
-func getCollection(t *testing.T) (*Collection, error) {
+func getCollection(t *testing.T) (map[string]any, error) {
 	inputFilePath := "../samples/calendar-API.postman_collection.json"
 	jsonBytes, err := os.ReadFile(inputFilePath)
 	if err != nil {
@@ -277,46 +272,16 @@ func TestFilterResponses(t *testing.T) {
 	}
 
 	filterResponsesByStatus(collection, [][]int{{200, 200}})
-	for _, endpoint := range collection.Endpoints {
-		for _, response := range endpoint.Responses {
-			if response.Code != 200 {
-				t.Errorf("want 200, got %d", response.Code)
+	for _, endpointAny := range collection["item"].([]any) {
+		endpoint := endpointAny.(map[string]any)
+		for _, responseAny := range endpoint["response"].([]any) {
+			response := responseAny.(map[string]any)
+			code := int(response["code"].(float64))
+			if code != 200 {
+				t.Errorf("want 200, got %d", code)
 				return
 			}
 		}
-	}
-}
-
-func TestGetVersionWithoutVersionedEndpoints(t *testing.T) {
-	collection, err := getCollection(t)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	if len(collection.Endpoints) == 0 {
-		t.Error("No endpoints to test")
-		return
-	}
-
-	for i, endpoint := range collection.Endpoints {
-		if len(endpoint.Request.Url.Path) == 0 {
-			t.Errorf("Request missing path: %v", endpoint.Request)
-			return
-		}
-
-		// Delete any version number from the endpoint.
-		maybeVersion := endpoint.Request.Url.Path[0]
-		if strings.HasPrefix(maybeVersion, "v") {
-			maybeNumber := strings.TrimPrefix(maybeVersion, "v")
-			if _, err := strconv.Atoi(maybeNumber); err == nil {
-				collection.Endpoints[i].Request.Url.Path = endpoint.Request.Url.Path[1:]
-			}
-		}
-	}
-
-	version, err := getVersion(collection.Endpoints)
-	if err == nil {
-		t.Errorf("getVersion returned (%q, nil), want non-nil error", version)
 	}
 }
 

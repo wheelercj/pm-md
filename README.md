@@ -41,9 +41,9 @@ These steps require [Go](https://go.dev/) to be installed.
 Easily customize the output by editing the template.
 
 * `pm2md --get-template` creates a new file of the default template as an easier starting point for customization.
-* `pm2md api.json --template=custom.tmpl` reads api.json and saves text formatted using the custom template file custom.tmpl to a new file.
+* `pm2md api.json --template=custom.tmpl` reads api.json and formats text using a custom template file named custom.tmpl. The result is saved into a new file with a unique name.
 
-In a template, you can use the variables and functions defined in [types.go](cmd/types.go). Sometimes it's helpful to look at the JSON exported from Postman to understand the variables. These template docs might also be helpful:
+In a template, you can use the functions in the `FuncMap` in [func_map.go](cmd/func_map.go). Sometimes it's helpful to look at the JSON exported from Postman to know what variables are available. These template docs might also be helpful:
 
   * [How To Use Templates in Go — DigitalOcean](https://www.digitalocean.com/community/tutorials/how-to-use-templates-in-go#step-4-writing-a-template)
   * [the template package — Go's standard library](https://pkg.go.dev/text/template)
@@ -51,8 +51,8 @@ In a template, you can use the variables and functions defined in [types.go](cmd
 Here's how to add a table of contents with links that work in GitHub:
 
 ```
-{{ range .Endpoints }}
-* {{ formatHeaderLink .Name }}
+{{ range .item }}
+* {{ formatHeaderLink .name }}
 {{- end }}
 ```
 
@@ -83,7 +83,6 @@ Here's how to export a collection from Postman (choose the v2.1.0 export option)
 * [intro to Go](https://wheelercj.github.io/notes/pages/20221122173910.html)
 * [JSON and Go — The Go Blog](https://go.dev/blog/json)
 * [the embed package — Go's standard library](https://pkg.go.dev/embed)
-* [How To Use Struct Tags in Go — DigitalOcean](https://www.digitalocean.com/community/tutorials/how-to-use-struct-tags-in-go)
 * [spf13/cobra](https://github.com/spf13/cobra)
 * [GoReleaser](https://goreleaser.com/)
 * [how to create a custom terminal command](https://wheelercj.github.io/notes/pages/20220320181252.html)
