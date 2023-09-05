@@ -24,6 +24,9 @@ import (
 
 var funcMap = template.FuncMap{
 	"formatHeaderLink": formatHeaderLink,
+	"add": func(a, b int) int {
+		return a + b
+	},
 	"join": func(elems []any, sep string) string {
 		strElems := make([]string, len(elems))
 		for i, e := range elems {

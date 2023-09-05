@@ -41,7 +41,7 @@ func assertJsonToMdFileNoDiff(t *testing.T, inputJsonFilePath, customTmplPath, o
 
 	jsonBytes, err := os.ReadFile(inputJsonFilePath)
 	if err != nil {
-		t.Errorf("Failed to open %q", inputJsonFilePath)
+		t.Error(err)
 		return
 	}
 	tmplName, tmplStr, err := loadTmpl(customTmplPath)
@@ -65,12 +65,12 @@ func assertJsonToMdFileNoDiff(t *testing.T, inputJsonFilePath, customTmplPath, o
 	defer os.Remove(outputPath)
 	ansBytes, err := os.ReadFile(outputPath)
 	if err != nil {
-		t.Errorf("Failed to open %q", outputPath)
+		t.Error(err)
 		return
 	}
 	wantBytes, err := os.ReadFile(wantOutputPath)
 	if err != nil {
-		t.Errorf("Failed to open %q", wantOutputPath)
+		t.Error(err)
 		return
 	}
 	ans := strings.ReplaceAll(string(ansBytes), "\r\n", "\n")
@@ -178,6 +178,13 @@ func TestJsonToMdFileWithCustomTemplate(t *testing.T) {
 	assertJsonToMdFileNoDiff(t, inputFilePath, customTmplPath, "", wantOutputPath)
 }
 
+func TestJsonToMdFileWithRecursiveTemplate(t *testing.T) {
+	inputFilePath := "../samples/calendar-API-with-folders.postman_collection.json"
+	customTmplPath := "../samples/recursive.tmpl"
+	wantOutputPath := "../samples/calendar-API-v1-with-folders.md"
+	assertJsonToMdFileNoDiff(t, inputFilePath, customTmplPath, "", wantOutputPath)
+}
+
 func TestInvalidJsonToMdFile(t *testing.T) {
 	// Skip this test if unique file name creation isn't working correctly.
 	TestCreateUniqueFileName(t)
@@ -213,7 +220,7 @@ func TestJsonToMdFileExistingFileErr(t *testing.T) {
 	inputFilePath := "../samples/calendar-API.postman_collection.json"
 	jsonBytes, err := os.ReadFile(inputFilePath)
 	if err != nil {
-		t.Errorf("Failed to open %s", inputFilePath)
+		t.Error(err)
 		return
 	}
 	tmplName, tmplStr, err := loadTmpl("")
@@ -231,7 +238,7 @@ func TestParseCollectionWithOldSchema(t *testing.T) {
 	inputFilePath := "../samples/calendar-API.postman_collection.json"
 	jsonBytes, err := os.ReadFile(inputFilePath)
 	if err != nil {
-		t.Errorf("Failed to open %s", inputFilePath)
+		t.Error(err)
 		return
 	}
 	jsonStr := string(jsonBytes)
@@ -249,11 +256,10 @@ func TestParseCollectionWithOldSchema(t *testing.T) {
 	}
 }
 
-func getCollection(t *testing.T) (map[string]any, error) {
-	inputFilePath := "../samples/calendar-API.postman_collection.json"
-	jsonBytes, err := os.ReadFile(inputFilePath)
+func getCollection(t *testing.T, jsonFilePath string) (map[string]any, error) {
+	jsonBytes, err := os.ReadFile(jsonFilePath)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to open %s", inputFilePath)
+		return nil, err
 	}
 
 	collection, err := parseCollection(jsonBytes)
@@ -264,36 +270,94 @@ func getCollection(t *testing.T) (map[string]any, error) {
 	return collection, nil
 }
 
+func assertAllStatuses200(t *testing.T, items []any) {
+	for _, itemAny := range items {
+		item := itemAny.(map[string]any)
+		if subItemsAny, ok := item["item"]; ok { // if item is a folder
+			assertAllStatuses200(t, subItemsAny.([]any))
+		} else { // if item is an endpoint
+			for _, responseAny := range item["response"].([]any) {
+				response := responseAny.(map[string]any)
+				code := int(response["code"].(float64))
+				if code != 200 {
+					t.Errorf("want 200, got %d", code)
+				}
+			}
+		}
+	}
+}
+
+func assertLevels(t *testing.T, items []any, wantLevel int) {
+	for _, itemAny := range items {
+		item := itemAny.(map[string]any)
+		if ansLevel, ok := item["level"]; !ok {
+			t.Errorf("Item %q at level %d has no \"level\" property", item["name"], wantLevel)
+		} else if ansLevel != wantLevel {
+			t.Errorf("Item %q has level %d, want level %d", item["name"], ansLevel, wantLevel)
+		}
+		if subItemsAny, ok := item["item"]; ok { // if item is a folder
+			assertLevels(t, subItemsAny.([]any), wantLevel+1)
+		} else { // if item is an endpoint
+			for _, responseAny := range item["response"].([]any) {
+				response := responseAny.(map[string]any)
+				if ansLevel, ok := response["level"]; !ok {
+					t.Errorf("Endpoint %q at level %d has no \"level\" property", item["name"], wantLevel)
+				} else if ansLevel != wantLevel {
+					t.Errorf("Endpoint %q has level %d, want level %d", item["name"], ansLevel, wantLevel)
+				}
+			}
+		}
+	}
+}
+
 func TestFilterResponses(t *testing.T) {
-	collection, err := getCollection(t)
+	jsonFilePath := "../samples/calendar-API.postman_collection.json"
+	collection, err := getCollection(t, jsonFilePath)
 	if err != nil {
 		t.Error(err)
 		return
 	}
 
 	filterResponsesByStatus(collection, [][]int{{200, 200}})
-	for _, endpointAny := range collection["item"].([]any) {
-		endpoint := endpointAny.(map[string]any)
-		for _, responseAny := range endpoint["response"].([]any) {
-			response := responseAny.(map[string]any)
-			code := int(response["code"].(float64))
-			if code != 200 {
-				t.Errorf("want 200, got %d", code)
-				return
-			}
-		}
+	items := collection["item"].([]any)
+	assertAllStatuses200(t, items)
+}
+
+func TestFilterResponsesWithFolders(t *testing.T) {
+	jsonFilePath := "../samples/calendar-API-with-folders.postman_collection.json"
+	collection, err := getCollection(t, jsonFilePath)
+	if err != nil {
+		t.Error(err)
+		return
 	}
+
+	filterResponsesByStatus(collection, [][]int{{200, 200}})
+	items := collection["item"].([]any)
+	assertAllStatuses200(t, items)
+}
+
+func TestAddLevelProperty(t *testing.T) {
+	jsonFilePath := "../samples/calendar-API-with-folders.postman_collection.json"
+	collection, err := getCollection(t, jsonFilePath)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	addLevelProperty(collection)
+	items := collection["item"].([]any)
+	assertLevels(t, items, 1)
 }
 
 func TestGetDestFileStdout(t *testing.T) {
-	destFile, destName, err := getDestFile("-", "", false)
+	destFile, destName, err := openDestFile("-", "", false)
 	if destFile != os.Stdout || destName != "-" || err != nil {
 		t.Errorf("getDestFile(\"-\", \"\") = (%p, %q, %q), want (%p, \"-\", nil)", destFile, destName, err, os.Stdout)
 	}
 }
 
 func TestGetDestFileExistingFileErr(t *testing.T) {
-	destFile, destName, err := getDestFile("../LICENSE", "", false)
+	destFile, destName, err := openDestFile("../LICENSE", "", false)
 	if err == nil {
 		t.Errorf("getDestFile(\"../LICENSE\", \"\", false) = (%p, %q, nil), want non-nil error", destFile, destName)
 		if destName != "-" {
@@ -312,7 +376,7 @@ func TestGetDestFile(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.collectionName, func(t *testing.T) {
-			destFile, destName, err := getDestFile(test.originalDestName, test.collectionName, false)
+			destFile, destName, err := openDestFile(test.originalDestName, test.collectionName, false)
 			if err != nil {
 				t.Errorf(
 					"getDestFile(%q, %q) = (%p, %q, %v), want nil error",
@@ -355,7 +419,7 @@ func TestGetDestFile(t *testing.T) {
 
 func TestGetDestFileWithEmptyNames(t *testing.T) {
 	wantDestName := "collection.md"
-	destFile, destName, err := getDestFile("", "", false)
+	destFile, destName, err := openDestFile("", "", false)
 	if err != nil || destName != wantDestName || destFile == nil {
 		t.Errorf("getDestFile(\"\", \"\") = (%p, %q, %v), want (non-nil *os.File, %q, nil)", destFile, destName, err, wantDestName)
 	}
@@ -372,7 +436,7 @@ func TestGetDestFileWithEmptyNames(t *testing.T) {
 }
 
 func TestGetDestFileNameReplaceError(t *testing.T) {
-	destFile, destName, err := getDestFile("samples/calendar-API-v1.md", "", false)
+	destFile, destName, err := openDestFile("samples/calendar-API-v1.md", "", false)
 	if err == nil {
 		t.Errorf("getDestFile targeting an existing file returned nil error, want non-nil error")
 		t.Errorf("getDestFile(<existing file>, \"\") = (%p, %q, nil), want (nil, \"\", <non-nil error>)", destFile, destName)

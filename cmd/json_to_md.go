@@ -35,20 +35,22 @@ func jsonToMdFile(jsonBytes []byte, destName, tmplName, tmplStr string, statusRa
 		return "", err
 	}
 	filterResponsesByStatus(collection, statusRanges)
+	addLevelProperty(collection)
 
 	collectionName := collection["info"].(map[string]any)["name"].(string)
-	destFile, destName, err := getDestFile(destName, collectionName, confirmReplaceExistingFile)
+	destFile, destName, err := openDestFile(destName, collectionName, confirmReplaceExistingFile)
 	if err != nil {
 		return "", err
 	}
-	if destName != "-" {
-		// destFile is not os.Stdout
+	if destName != "-" { // if destFile is not os.Stdout
 		defer destFile.Close()
 	}
 
 	if err = executeTemplate(destFile, collection, tmplName, tmplStr); err != nil {
-		destFile.Close()
-		os.Remove(destName)
+		if destName != "-" { // if destFile is not os.Stdout
+			destFile.Close()
+			os.Remove(destName)
+		}
 		return "", err
 	}
 
@@ -107,35 +109,67 @@ func filterResponsesByStatus(collection map[string]any, statusRanges [][]int) {
 	if statusRanges == nil || len(statusRanges) == 0 {
 		return
 	}
-	endpoints := collection["item"].([]any)
-	for _, endpointAny := range endpoints {
-		endpoint := endpointAny.(map[string]any)
-		responses := endpoint["response"].([]any)
-		for j := len(responses) - 1; j >= 0; j-- {
-			response := responses[j].(map[string]any)
-			inRange := false
-			for _, statusRange := range statusRanges {
-				code := int(response["code"].(float64))
-				if code >= statusRange[0] && code <= statusRange[1] {
-					inRange = true
-					break
+	items := collection["item"].([]any)
+	_filterResponsesByStatus(items, statusRanges)
+}
+
+func _filterResponsesByStatus(items []any, statusRanges [][]int) {
+	for _, itemAny := range items {
+		item := itemAny.(map[string]any)
+		if subItemsAny, ok := item["item"]; ok { // if item is a folder
+			_filterResponsesByStatus(subItemsAny.([]any), statusRanges)
+		} else { // if item is an endpoint
+			responses := item["response"].([]any)
+			for j := len(responses) - 1; j >= 0; j-- {
+				response := responses[j].(map[string]any)
+				inRange := false
+				for _, statusRange := range statusRanges {
+					code := int(response["code"].(float64))
+					if code >= statusRange[0] && code <= statusRange[1] {
+						inRange = true
+						break
+					}
 				}
-			}
-			if !inRange {
-				responses = slices.Delete(responses, j, j+1)
-				endpoint["response"] = responses
+				if !inRange {
+					responses = slices.Delete(responses, j, j+1)
+					item["response"] = responses
+				}
 			}
 		}
 	}
 }
 
-// getDestFile gets the destination file and its name. If the given destination name is
+// addLevelProperty adds a "level" property within each "item" and each "response"
+// object. The level starts at 1 for the outermost item object and increases by 1 for
+// each level of "item" nesting.
+func addLevelProperty(collection map[string]any) {
+	items := collection["item"].([]any)
+	_addLevelProperty(items, 1)
+}
+
+func _addLevelProperty(items []any, level int) {
+	for _, itemAny := range items {
+		item := itemAny.(map[string]any)
+		item["level"] = level
+		if subItemsAny, ok := item["item"]; ok { // if item is a folder
+			_addLevelProperty(subItemsAny.([]any), level+1)
+		} else { // if item is an endpoint
+			responses := item["response"].([]any)
+			for _, responseAny := range responses {
+				response := responseAny.(map[string]any)
+				response["level"] = level
+			}
+		}
+	}
+}
+
+// openDestFile gets the destination file and its name. If the given destination name is
 // "-", the destination file is os.Stdout. If the given destination name is empty, a new
 // file is created with a name based on the collection name and the returned name will
 // be different from the given one. If the given destination name refers to an existing
 // file and confirmation to replace an existing file is not given, an error is returned.
 // Any returned file is open.
-func getDestFile(destName, collectionName string, confirmReplaceExistingFile bool) (*os.File, string, error) {
+func openDestFile(destName, collectionName string, confirmReplaceExistingFile bool) (*os.File, string, error) {
 	if destName == "-" {
 		return os.Stdout, destName, nil
 	}
@@ -156,7 +190,7 @@ func getDestFile(destName, collectionName string, confirmReplaceExistingFile boo
 }
 
 // executeTemplate uses a template and FuncMap to convert the collection to markdown and
-// saves to the given destination file. The destination file is not closed.
+// saves to the given open destination file. The destination file is not closed.
 func executeTemplate(destFile *os.File, collection map[string]any, tmplName, tmplStr string) error {
 	tmpl, err := template.New(tmplName).Funcs(funcMap).Parse(tmplStr)
 	if err != nil {

@@ -6,7 +6,7 @@ Convert a Postman collection to markdown documentation.
 
 [sample result](samples/calendar-API-v1.md)
 
-**Template-driven**. You can easily customize the output by editing the template. See the "custom templates" section below for more details.
+**Template-driven**. You can customize the output by editing a template. See the "custom templates" section below for more details.
 
 ## download
 
@@ -38,15 +38,15 @@ These steps require [Go](https://go.dev/) to be installed.
 
 ### custom templates
 
-Easily customize the output by editing the template.
+You can customize the output by editing the template.
 
 * `pm2md --get-template` creates a new file of the default template as an easier starting point for customization.
 * `pm2md api.json --template=custom.tmpl` reads api.json and formats text using a custom template file named custom.tmpl. The result is saved into a new file with a unique name.
 
-In a template, you can use the functions in the `FuncMap` in [func_map.go](cmd/func_map.go). Sometimes it's helpful to look at the JSON exported from Postman to know what variables are available. These template docs might also be helpful:
+In a template, you can use the functions in the `FuncMap` in [func_map.go](cmd/func_map.go). Sometimes it's helpful to look at the JSON exported from Postman to know what variables are available. pm2md adds a "level" integer property to each Postman item and response (folders, endpoints, and responses). These template docs might also be helpful:
 
-  * [How To Use Templates in Go — DigitalOcean](https://www.digitalocean.com/community/tutorials/how-to-use-templates-in-go#step-4-writing-a-template)
-  * [the template package — Go's standard library](https://pkg.go.dev/text/template)
+* [the template package — Go's standard library](https://pkg.go.dev/text/template)
+* [How To Use Templates in Go — DigitalOcean](https://www.digitalocean.com/community/tutorials/how-to-use-templates-in-go#step-4-writing-a-template)
 
 Here's how to add a table of contents with links that work in GitHub:
 
@@ -69,6 +69,16 @@ POST `/v1/hello`
 POST `/v1/hello`
 </details>
 ```
+
+HTML's `<details>` element has an optional `open` attribute if you want details shown by default (`<details open>`).
+
+Here's an example of a custom template that works with Postman folders:
+
+* [recursive.tmpl](samples/recursive.tmpl)
+* [sample output](samples/calendar-API-v1-with-folders.md)
+* [sample input](samples/calendar-API-with-folders.postman_collection.json)
+
+Better support for folders will be added soon!
 
 ## Postman tips
 

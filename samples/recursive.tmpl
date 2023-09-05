@@ -1,0 +1,57 @@
+{{- define "main" }}
+{{- range . }}
+
+----------------------------------------
+
+<details open>
+<summary>
+<h{{ .level }}>
+    {{- .name -}}
+</h{{ .level }}>
+</summary>
+
+{{- if .item }}
+{{- template "main" .item }}
+{{- else }}
+
+{{- if .request.method }}
+
+{{ .request.method }} `/{{ join .request.url.path "/" }}`
+{{- end }}
+
+{{- if .request.body.raw }}
+
+<h{{ add .level 1 }}>
+    {{- "sample request body" -}}
+</h{{ add .level 1 }}>
+
+```{{ .request.body.options.raw.language }}
+{{ allowJsonOrPlaintext .request.body.raw }}
+```
+{{- end }}
+
+{{- range .response }}
+
+<details>
+    <summary>
+        <h{{ add .level 1 }}>{{- "" -}}
+            sample response to {{ .name }} (status: {{ .code }} {{ .status }}){{- "" -}}
+        </h{{ add .level 1 }}>
+    </summary>
+
+```{{ ._postman_previewlanguage }}
+{{- if .body }}
+{{ allowJsonOrPlaintext .body }}
+{{- else }}
+(no response body)
+{{- end }}
+```
+</details>
+{{- end }}
+{{- end }}
+</details>
+{{- end }}
+{{- end -}}
+
+# {{ .info.name }}
+{{- template "main" .item }}
