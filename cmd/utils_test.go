@@ -54,8 +54,8 @@ func TestCreateUniqueFileName(t *testing.T) {
 	tests := []struct {
 		name, ext, want string
 	}{
-		{"../LICENSE", "", "../LICENSE(1)"},
-		{"../README", ".md", "../README(1).md"},
+		{"../LICENSE", "", "../LICENSE.1"},
+		{"../README", ".md", "../README.1.md"},
 		{"nonexistent-file", ".txt", "nonexistent-file.txt"},
 	}
 

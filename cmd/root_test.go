@@ -86,53 +86,53 @@ func TestArgsFuncWithInvalidCustomTmplPath(t *testing.T) {
 	CustomTmplPath = ""
 }
 
-func TestRunFuncWithInvalidStatuses(t *testing.T) {
-	jsonFilePath := "../samples/calendar-API.postman_collection.json"
+func TestParseInputWithInvalidStatuses(t *testing.T) {
+	jsonPath := "../samples/calendar-API.postman_collection.json"
 	Statuses = "this is not a valid statuses value"
-	err := runFunc(nil, []string{jsonFilePath})
+	destPath, destFile, _, _, err := parseInput(nil, []string{jsonPath})
 	Statuses = ""
 	if err == nil {
-		t.Error("runFunc(nil, []string{\"\"}) with invalid statuses returned nil, want non-nil error")
+		t.Error("parseInput(nil, []string{\"\"}) with invalid statuses returned nil error, want non-nil error")
+		defer os.Remove(destPath)
+		defer destFile.Close()
 	}
 }
 
-func TestRunFuncWithInvalidJsonPath(t *testing.T) {
-	jsonFilePath := "nonexistent.json"
-	err := runFunc(nil, []string{jsonFilePath})
+func TestParseInputWithInvalidJsonPath(t *testing.T) {
+	jsonPath := "nonexistent.json"
+	destPath, destFile, _, _, err := parseInput(nil, []string{jsonPath})
 	if err == nil {
-		t.Errorf("runFunc(nil, []string{%q}) = nil, want non-nil error", jsonFilePath)
+		t.Errorf("parseInput(nil, []string{%q}) returned nil error, want non-nil error", jsonPath)
+		defer os.Remove(destPath)
+		defer destFile.Close()
 	}
 }
 
-func TestRunFuncWithInvalidCustomTmplPath(t *testing.T) {
-	jsonFilePath := "../samples/calendar-API.postman_collection.json"
-	CustomTmplPath = "nonexistent.tmpl"
-	err := runFunc(nil, []string{jsonFilePath})
-	CustomTmplPath = ""
-	if err == nil {
-		t.Errorf("runFunc(nil, []string{%q}) = nil, want non-nil error", jsonFilePath)
-	}
-}
-
-func TestRunFuncExistingFileError(t *testing.T) {
-	jsonFilePath := "../samples/calendar-API.postman_collection.json"
+func TestParseInputExistingFileError(t *testing.T) {
+	jsonPath := "../samples/calendar-API.postman_collection.json"
 	destPath := "../samples/calendar-API-v1.md"
 	if !FileExists(destPath) {
 		t.Errorf("Test broken. Expected file %q to exist", destPath)
 		return
 	}
-	err := runFunc(nil, []string{jsonFilePath, destPath})
+	destPath, destFile, _, _, err := parseInput(nil, []string{jsonPath, destPath})
 	if err == nil {
-		t.Errorf("runFunc(nil, []string{%q, %q}) = nil, want non-nil error", jsonFilePath, destPath)
+		t.Errorf("parseInput(nil, []string{%q, %q}) returned nil error, want non-nil error", jsonPath, destPath)
+		defer os.Remove(destPath)
+		defer destFile.Close()
 	}
 }
 
 func TestLoadTmplDefault(t *testing.T) {
 	tmplName, tmplStr, err := loadTmpl("")
+	if err != nil {
+		t.Error(err)
+		return
+	}
 	if tmplName != defaultTmplName {
 		t.Errorf("loadTmpl(\"\") returned template name %q, want %q", tmplName, defaultTmplName)
 	}
-	assertNoDiff(t, tmplStr, defaultTmplStr, "\r\n")
+	err = AssertNoDiff(tmplStr, defaultTmplStr, "\r\n")
 	if err != nil {
 		t.Errorf("loadTmpl(\"\") returned error %q, want nil error", err)
 	}
@@ -141,6 +141,10 @@ func TestLoadTmplDefault(t *testing.T) {
 func TestLoadTmplCustom(t *testing.T) {
 	customTmplPath := "../samples/custom.tmpl"
 	ansName, ansTmplStr, err := loadTmpl(customTmplPath)
+	if err != nil {
+		t.Error(err)
+		return
+	}
 	wantName := "custom.tmpl"
 	customBytes, err := os.ReadFile(customTmplPath)
 	if err != nil {
@@ -152,7 +156,7 @@ func TestLoadTmplCustom(t *testing.T) {
 	if ansName != wantName {
 		t.Errorf("loadTmpl(\"../samples/custom.tmpl\") returned template name %q, want %q", ansName, wantName)
 	}
-	assertNoDiff(t, ansTmplStr, wantTmplStr, "\r\n")
+	err = AssertNoDiff(ansTmplStr, wantTmplStr, "\r\n")
 	if err != nil {
 		t.Errorf("loadTmpl(\"../samples/custom.tmpl\") returned error %q, want nil error", err)
 	}

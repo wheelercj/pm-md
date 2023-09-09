@@ -15,102 +15,27 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 	"reflect"
 	"strings"
 	"testing"
 )
 
-// assertJsonToMdFileNoDiff converts JSON to markdown and asserts the resulting markdown
-// is the same as a given example. If the given custom template path is empty, the
-// default template is used. If the given output path is empty, a new file is created
-// with a unique name based on the JSON. The wanted output path is the path to an
-// existing file containing the wanted output.
-func assertJsonToMdFileNoDiff(t *testing.T, inputJsonFilePath, customTmplPath, outputPath, wantOutputPath string) {
+// assertGenerateNoDiff asserts the given JSON and template result in expected
+// plaintext. If the given template path is empty, the default template is used.
+// wantPath is the path to an existing file containing the wanted output.
+func assertGenerateNoDiff(t *testing.T, jsonPath, tmplPath, wantPath string) {
 	// Skip this test if unique file name creation isn't working correctly.
 	TestCreateUniqueFileName(t)
 	TestCreateUniqueFileNamePanic(t)
 	if t.Failed() {
 		return
 	}
-	if outputPath == "-" {
-		t.Error("This test cannot use stdout")
-		return
-	}
 
-	jsonBytes, err := os.ReadFile(inputJsonFilePath)
+	err := AssertGenerateNoDiff(jsonPath, tmplPath, wantPath, nil)
 	if err != nil {
 		t.Error(err)
-		return
 	}
-	tmplName, tmplStr, err := loadTmpl(customTmplPath)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
-
-	outputPath, err = jsonToMdFile(
-		jsonBytes,
-		outputPath,
-		tmplName,
-		tmplStr,
-		nil,
-		false,
-	)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	defer os.Remove(outputPath)
-	ansBytes, err := os.ReadFile(outputPath)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	wantBytes, err := os.ReadFile(wantOutputPath)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	ans := strings.ReplaceAll(string(ansBytes), "\r\n", "\n")
-	want := strings.ReplaceAll(string(wantBytes), "\r\n", "\n")
-
-	assertNoDiff(t, ans, want, "\n")
-}
-
-// assertNoDiff compares two strings, asserting they have the same number of lines and
-// the same content on each line. The strings have lines separated by linesep.
-func assertNoDiff(t *testing.T, ans, want, linesep string) {
-	if ans == want {
-		return
-	}
-	ansSlice := strings.Split(ans, linesep)
-	wantSlice := strings.Split(want, linesep)
-	for i := 0; i < len(ansSlice); i++ {
-		if i >= len(wantSlice) {
-			t.Errorf(
-				"Actual output longer than expected (want %d lines, got %d).\nContinues with\n  %q",
-				len(wantSlice), len(ansSlice), ansSlice[i],
-			)
-			return
-		}
-		if ansSlice[i] != wantSlice[i] {
-			t.Errorf(
-				"Difference on line %d\nwant:\n  %q\ngot:\n  %q",
-				i+1, wantSlice[i], ansSlice[i],
-			)
-			return
-		}
-	}
-	if len(ansSlice) < len(wantSlice) {
-		t.Errorf(
-			"Actual output shorter than expected (want %d lines, got %d).\nShould continue with\n  %q",
-			len(wantSlice), len(ansSlice), wantSlice[len(ansSlice)],
-		)
-		return
-	}
-	t.Errorf("The actual and expected strings don't match for an unknown reason")
 }
 
 func TestParseStatusRanges(t *testing.T) {
@@ -158,41 +83,27 @@ func TestParseEmptyCollection(t *testing.T) {
 	}
 }
 
-func TestJsonToMdFile(t *testing.T) {
-	inputFilePath := "../samples/calendar-API.postman_collection.json"
+func TestGenerateText(t *testing.T) {
+	inputPath := "../samples/calendar-API.postman_collection.json"
 	wantOutputPath := "../samples/calendar-API-v1.md"
-	assertJsonToMdFileNoDiff(t, inputFilePath, "", "", wantOutputPath)
+	assertGenerateNoDiff(t, inputPath, "", wantOutputPath)
 }
 
-func TestJsonToMdFileWithCustomOutputFileName(t *testing.T) {
-	inputFilePath := "../samples/calendar-API.postman_collection.json"
-	customOutputFileName := "custom-file-name-for-testing.md"
-	wantOutputPath := "../samples/calendar-API-v1.md"
-	assertJsonToMdFileNoDiff(t, inputFilePath, "", customOutputFileName, wantOutputPath)
-}
-
-func TestJsonToMdFileWithCustomTemplate(t *testing.T) {
-	inputFilePath := "../samples/calendar-API.postman_collection.json"
+func TestGenerateTextWithCustomTemplate(t *testing.T) {
+	inputPath := "../samples/calendar-API.postman_collection.json"
 	customTmplPath := "../samples/custom.tmpl"
 	wantOutputPath := "../samples/calendar-API-v1-from-custom-templ.md"
-	assertJsonToMdFileNoDiff(t, inputFilePath, customTmplPath, "", wantOutputPath)
+	assertGenerateNoDiff(t, inputPath, customTmplPath, wantOutputPath)
 }
 
-func TestJsonToMdFileWithRecursiveTemplate(t *testing.T) {
-	inputFilePath := "../samples/calendar-API-with-folders.postman_collection.json"
+func TestGenerateTextWithRecursiveTemplate(t *testing.T) {
+	inputPath := "../samples/calendar-API-with-folders.postman_collection.json"
 	customTmplPath := "../samples/recursive.tmpl"
 	wantOutputPath := "../samples/calendar-API-v1-with-folders.md"
-	assertJsonToMdFileNoDiff(t, inputFilePath, customTmplPath, "", wantOutputPath)
+	assertGenerateNoDiff(t, inputPath, customTmplPath, wantOutputPath)
 }
 
-func TestInvalidJsonToMdFile(t *testing.T) {
-	// Skip this test if unique file name creation isn't working correctly.
-	TestCreateUniqueFileName(t)
-	TestCreateUniqueFileNamePanic(t)
-	if t.Failed() {
-		return
-	}
-
+func TestParseCollectionWithInvalidJson(t *testing.T) {
 	invalidJson := []byte(`
 		{
 			"info": {
@@ -202,41 +113,16 @@ func TestInvalidJsonToMdFile(t *testing.T) {
 				"_exporter_id": "23363106"
 			},
 	`)
-	tmplName, tmplStr, err := loadTmpl("")
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
-	destName, err := jsonToMdFile(invalidJson, "-", tmplName, tmplStr, nil, false)
+
+	_, err := parseCollection(invalidJson)
 	if err == nil {
 		t.Error("Error expected")
-		if destName != "-" {
-			t.Errorf("The destination name should not have changed from \"-\" to %q", destName)
-		}
-	}
-}
-
-func TestJsonToMdFileExistingFileErr(t *testing.T) {
-	inputFilePath := "../samples/calendar-API.postman_collection.json"
-	jsonBytes, err := os.ReadFile(inputFilePath)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	tmplName, tmplStr, err := loadTmpl("")
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
-	destName, err := jsonToMdFile(jsonBytes, "../LICENSE", tmplName, tmplStr, nil, false)
-	if err == nil {
-		t.Errorf("jsonToMdFile(jsonBytes, \"../LICENSE\", \"\", nil, false) = (%q, nil), want non-nil error", destName)
 	}
 }
 
 func TestParseCollectionWithOldSchema(t *testing.T) {
-	inputFilePath := "../samples/calendar-API.postman_collection.json"
-	jsonBytes, err := os.ReadFile(inputFilePath)
+	inputPath := "../samples/calendar-API.postman_collection.json"
+	jsonBytes, err := os.ReadFile(inputPath)
 	if err != nil {
 		t.Error(err)
 		return
@@ -256,8 +142,10 @@ func TestParseCollectionWithOldSchema(t *testing.T) {
 	}
 }
 
-func getCollection(t *testing.T, jsonFilePath string) (map[string]any, error) {
-	jsonBytes, err := os.ReadFile(jsonFilePath)
+// getCollection loads JSON from the file at the given path and converts the JSON to a
+// map.
+func getCollection(t *testing.T, jsonPath string) (map[string]any, error) {
+	jsonBytes, err := os.ReadFile(jsonPath)
 	if err != nil {
 		return nil, err
 	}
@@ -270,6 +158,8 @@ func getCollection(t *testing.T, jsonFilePath string) (map[string]any, error) {
 	return collection, nil
 }
 
+// assertAllStatuses200 asserts that every "response" object in the given items has a
+// status code of 200.
 func assertAllStatuses200(t *testing.T, items []any) {
 	for _, itemAny := range items {
 		item := itemAny.(map[string]any)
@@ -287,6 +177,8 @@ func assertAllStatuses200(t *testing.T, items []any) {
 	}
 }
 
+// assertLevels asserts that each "item" and "response" object has a "level" integer
+// property, and that it has the expected value.
 func assertLevels(t *testing.T, items []any, wantLevel int) {
 	for _, itemAny := range items {
 		item := itemAny.(map[string]any)
@@ -311,8 +203,8 @@ func assertLevels(t *testing.T, items []any, wantLevel int) {
 }
 
 func TestFilterResponses(t *testing.T) {
-	jsonFilePath := "../samples/calendar-API.postman_collection.json"
-	collection, err := getCollection(t, jsonFilePath)
+	jsonPath := "../samples/calendar-API.postman_collection.json"
+	collection, err := getCollection(t, jsonPath)
 	if err != nil {
 		t.Error(err)
 		return
@@ -324,8 +216,8 @@ func TestFilterResponses(t *testing.T) {
 }
 
 func TestFilterResponsesWithFolders(t *testing.T) {
-	jsonFilePath := "../samples/calendar-API-with-folders.postman_collection.json"
-	collection, err := getCollection(t, jsonFilePath)
+	jsonPath := "../samples/calendar-API-with-folders.postman_collection.json"
+	collection, err := getCollection(t, jsonPath)
 	if err != nil {
 		t.Error(err)
 		return
@@ -337,8 +229,8 @@ func TestFilterResponsesWithFolders(t *testing.T) {
 }
 
 func TestAddLevelProperty(t *testing.T) {
-	jsonFilePath := "../samples/calendar-API-with-folders.postman_collection.json"
-	collection, err := getCollection(t, jsonFilePath)
+	jsonPath := "../samples/calendar-API-with-folders.postman_collection.json"
+	collection, err := getCollection(t, jsonPath)
 	if err != nil {
 		t.Error(err)
 		return
@@ -352,14 +244,14 @@ func TestAddLevelProperty(t *testing.T) {
 func TestGetDestFileStdout(t *testing.T) {
 	destFile, destName, err := openDestFile("-", "", false)
 	if destFile != os.Stdout || destName != "-" || err != nil {
-		t.Errorf("getDestFile(\"-\", \"\") = (%p, %q, %q), want (%p, \"-\", nil)", destFile, destName, err, os.Stdout)
+		t.Errorf("openDestFile(\"-\", \"\") = (%p, %q, %q), want (%p, \"-\", nil)", destFile, destName, err, os.Stdout)
 	}
 }
 
 func TestGetDestFileExistingFileErr(t *testing.T) {
 	destFile, destName, err := openDestFile("../LICENSE", "", false)
 	if err == nil {
-		t.Errorf("getDestFile(\"../LICENSE\", \"\", false) = (%p, %q, nil), want non-nil error", destFile, destName)
+		t.Errorf("openDestFile(\"../LICENSE\", \"\", false) = (%p, %q, nil), want non-nil error", destFile, destName)
 		if destName != "-" {
 			destFile.Close()
 		}
@@ -379,28 +271,28 @@ func TestGetDestFile(t *testing.T) {
 			destFile, destName, err := openDestFile(test.originalDestName, test.collectionName, false)
 			if err != nil {
 				t.Errorf(
-					"getDestFile(%q, %q) = (%p, %q, %v), want nil error",
+					"openDestFile(%q, %q) = (%p, %q, %v), want nil error",
 					test.originalDestName, test.collectionName, destFile, destName, err,
 				)
 				return
 			}
 			if destFile == os.Stdout {
 				t.Errorf(
-					"getDestFile(%q, %q) = (os.Stdout, %q, nil), want non-std file",
+					"openDestFile(%q, %q) = (os.Stdout, %q, nil), want non-std file",
 					test.originalDestName, test.collectionName, destName,
 				)
 				return
 			}
 			if destFile == os.Stdin {
 				t.Errorf(
-					"getDestFile(%q, %q) = (os.Stdin, %q, nil), want non-std file",
+					"openDestFile(%q, %q) = (os.Stdin, %q, nil), want non-std file",
 					test.originalDestName, test.collectionName, destName,
 				)
 				return
 			}
 			if destFile == os.Stderr {
 				t.Errorf(
-					"getDestFile(%q, %q) = (os.Stderr, %q, nil), want non-std file",
+					"openDestFile(%q, %q) = (os.Stderr, %q, nil), want non-std file",
 					test.originalDestName, test.collectionName, destName,
 				)
 				return
@@ -409,7 +301,7 @@ func TestGetDestFile(t *testing.T) {
 			defer os.Remove(destName)
 			if destName != test.wantName {
 				t.Errorf(
-					"getDestFile(%q, %q) = (%p, %q, nil), want (%p, %q, nil)",
+					"openDestFile(%q, %q) = (%p, %q, nil), want (%p, %q, nil)",
 					test.originalDestName, test.collectionName, destFile, destName, destFile, test.wantName,
 				)
 			}
@@ -421,14 +313,14 @@ func TestGetDestFileWithEmptyNames(t *testing.T) {
 	wantDestName := "collection.md"
 	destFile, destName, err := openDestFile("", "", false)
 	if err != nil || destName != wantDestName || destFile == nil {
-		t.Errorf("getDestFile(\"\", \"\") = (%p, %q, %v), want (non-nil *os.File, %q, nil)", destFile, destName, err, wantDestName)
+		t.Errorf("openDestFile(\"\", \"\") = (%p, %q, %v), want (non-nil *os.File, %q, nil)", destFile, destName, err, wantDestName)
 	}
 	if destFile == os.Stdout {
-		t.Error("getDestFile(\"\", \"\") returned os.Stdout, want non-std file pointer")
+		t.Error("openDestFile(\"\", \"\") returned os.Stdout, want non-std file pointer")
 	} else if destFile == os.Stdin {
-		t.Error("getDestFile(\"\", \"\") returned os.Stdin, want non-std file pointer")
+		t.Error("openDestFile(\"\", \"\") returned os.Stdin, want non-std file pointer")
 	} else if destFile == os.Stderr {
-		t.Error("getDestFile(\"\", \"\") returned os.Stderr, want non-std file pointer")
+		t.Error("openDestFile(\"\", \"\") returned os.Stderr, want non-std file pointer")
 	} else if err == nil {
 		destFile.Close()
 		os.Remove(destName)
@@ -438,17 +330,17 @@ func TestGetDestFileWithEmptyNames(t *testing.T) {
 func TestGetDestFileNameReplaceError(t *testing.T) {
 	destFile, destName, err := openDestFile("samples/calendar-API-v1.md", "", false)
 	if err == nil {
-		t.Errorf("getDestFile targeting an existing file returned nil error, want non-nil error")
-		t.Errorf("getDestFile(<existing file>, \"\") = (%p, %q, nil), want (nil, \"\", <non-nil error>)", destFile, destName)
+		t.Errorf("openDestFile targeting an existing file returned nil error, want non-nil error")
+		t.Errorf("openDestFile(<existing file>, \"\") = (%p, %q, nil), want (nil, \"\", <non-nil error>)", destFile, destName)
 		if destName != "-" {
 			destFile.Close()
 		}
 	}
 }
 
-func TestExecuteTemplateWithInvalidTemplate(t *testing.T) {
-	err := executeTemplate(nil, nil, "api v1", "# {{ .Name ")
+func TestExecuteTmplWithInvalidTemplate(t *testing.T) {
+	err := executeTmpl(nil, nil, "api v1", "# {{ .Name ")
 	if err == nil {
-		t.Errorf("executeTemplate(nil, nil, \"api v1\", \"# {{ .Name \") = nil, want non-nil error")
+		t.Errorf("executeTmpl(nil, nil, \"api v1\", \"# {{ .Name \") = nil, want non-nil error")
 	}
 }

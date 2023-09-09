@@ -18,7 +18,6 @@ import (
 	_ "embed"
 	"fmt"
 	"os"
-	"path"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -33,10 +32,10 @@ const short = "Convert a Postman collection to markdown documentation"
 const jsonHelp = "You can get a JSON file from Postman by exporting a collection as a v2.1.0 collection"
 const github = "More help available here: github.com/wheelercj/pm2md"
 const version = "v0.0.7 (you can check for updates here: https://github.com/wheelercj/pm2md/releases)"
-const example = `pm2md collection.json
-pm2md collection.json documentation.md
-pm2md collection.json -
-pm2md collection.json --statuses=200-299,400-499`
+const example = `  pm2md collection.json
+  pm2md collection.json output.md
+  pm2md collection.json --template=custom.tmpl
+  pm2md test collection.json custom.tmpl expected.md`
 
 var Statuses string
 var CustomTmplPath string
@@ -53,6 +52,7 @@ var rootCmd = &cobra.Command{
 	RunE:    runFunc,
 }
 
+// argsFunc does some input validation on the command args and flags.
 func argsFunc(cmd *cobra.Command, args []string) error {
 	if len(args) == 0 && GetTemplate {
 		return nil
@@ -72,7 +72,34 @@ func argsFunc(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
+// runFunc parses command args and flags, generates plaintext, and saves the result to a
+// file or prints to stdout.
 func runFunc(cmd *cobra.Command, args []string) error {
+	destPath, destFile, collection, statusRanges, err := parseInput(cmd, args)
+	if err != nil {
+		return err
+	}
+	if destFile != os.Stdout {
+		defer destFile.Close()
+	}
+
+	err = generateText(
+		collection,
+		destFile,
+		CustomTmplPath,
+		statusRanges,
+	)
+	if err != nil {
+		return err
+	} else if destPath != "-" {
+		fmt.Fprintf(os.Stderr, "Created %q\n", destPath)
+	}
+	return nil
+}
+
+// parseInput parses command args and flags, opens the destination file, and returns all
+// of these results.
+func parseInput(cmd *cobra.Command, args []string) (string, *os.File, map[string]any, [][]int, error) {
 	if GetTemplate {
 		fileName := exportDefaultTemplate()
 		fmt.Fprintf(os.Stderr, "Created %q\n", fileName)
@@ -80,47 +107,38 @@ func runFunc(cmd *cobra.Command, args []string) error {
 			os.Exit(0)
 		}
 	}
-	jsonFilePath := args[0]
-	var destName string
+	jsonPath := args[0]
+	var destPath string
 	if len(args) == 2 {
-		destName = args[1]
+		destPath = args[1]
 	}
 
 	statusRanges, err := parseStatusRanges(Statuses)
 	if err != nil {
-		return err
+		return "", nil, nil, nil, err
 	}
 
 	var jsonBytes []byte
-	if jsonFilePath == "-" {
+	if jsonPath == "-" {
 		jsonBytes, err = ScanStdin()
 	} else {
-		jsonBytes, err = os.ReadFile(jsonFilePath)
+		jsonBytes, err = os.ReadFile(jsonPath)
 	}
 	if err != nil {
-		return err
+		return "", nil, nil, nil, err
 	}
-
-	tmplName, tmplStr, err := loadTmpl(CustomTmplPath)
+	collection, err := parseCollection(jsonBytes)
 	if err != nil {
-		return err
+		return "", nil, nil, nil, err
 	}
 
-	destName, err = jsonToMdFile(
-		jsonBytes,
-		destName,
-		tmplName,
-		tmplStr,
-		statusRanges,
-		ConfirmReplaceExistingFile,
-	)
+	collectionName := collection["info"].(map[string]any)["name"].(string)
+	destFile, destPath, err := openDestFile(destPath, collectionName, ConfirmReplaceExistingFile)
 	if err != nil {
-		return err
-	} else if destName != "-" {
-		fmt.Fprintf(os.Stderr, "Created %q\n", destName)
+		return "", nil, nil, nil, err
 	}
 
-	return nil
+	return destPath, destFile, collection, statusRanges, nil
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -133,6 +151,8 @@ func Execute() {
 }
 
 func init() {
+	rootCmd.AddCommand(testCmd)
+
 	rootCmd.Flags().StringVarP(
 		&Statuses,
 		"statuses",
@@ -163,20 +183,28 @@ func init() {
 	rootCmd.Flags().MarkHidden("replace")
 }
 
-// loadTmpl loads a template's name and the template itself into strings. If the given
-// custom template path is empty, the default template is used.
-func loadTmpl(customTmplPath string) (tmplName string, tmplStr string, err error) {
-	if len(customTmplPath) > 0 {
-		tmplBytes, err := os.ReadFile(customTmplPath)
-		if err != nil {
-			return "", "", err
-		}
-		tmplStr = string(tmplBytes)
-		tmplName = path.Base(strings.ReplaceAll(customTmplPath, "\\", "/"))
-	} else {
-		tmplStr = defaultTmplStr
-		tmplName = defaultTmplName
+// openDestFile gets the destination file and its path. If the given destination path is
+// "-", the destination file is os.Stdout. If the given destination path is empty, a new
+// file is created with a path based on the collection name and the returned path will
+// be different from the given one. If the given destination path refers to an existing
+// file and confirmation to replace an existing file is not given, an error is returned.
+// Any returned file is open.
+func openDestFile(destPath, collectionName string, confirmReplaceExistingFile bool) (*os.File, string, error) {
+	if destPath == "-" {
+		return os.Stdout, destPath, nil
 	}
-
-	return tmplName, tmplStr, nil
+	if len(destPath) == 0 {
+		fileName := FormatFileName(collectionName)
+		if len(fileName) == 0 {
+			fileName = "collection"
+		}
+		destPath = CreateUniqueFileName(fileName, ".md")
+	} else if FileExists(destPath) && !confirmReplaceExistingFile {
+		return nil, "", fmt.Errorf("File %q already exists. Run the command again with the --replace flag to confirm replacing it.", destPath)
+	}
+	destFile, err := os.Create(destPath)
+	if err != nil {
+		return nil, "", fmt.Errorf("os.Create: %s", err)
+	}
+	return destFile, destPath, nil
 }

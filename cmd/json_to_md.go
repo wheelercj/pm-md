@@ -17,44 +17,31 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"os"
 	"slices"
 	"strconv"
 	"strings"
+	"text/template"
 )
 
-// jsonToMdFile converts JSON bytes to markdown, prints the markdown to a file or
-// stdout, and returns the destination's name. If the destination name is "-", output
-// goes to stdout. If the destination's name is empty, a file is created with a unique
-// name based on the given JSON. Only an empty destination name will be changed from
-// what is given before being returned.
-func jsonToMdFile(jsonBytes []byte, destName, tmplName, tmplStr string, statusRanges [][]int, confirmReplaceExistingFile bool) (string, error) {
-	collection, err := parseCollection(jsonBytes)
-	if err != nil {
-		return "", err
-	}
+// generateText converts a collection to plaintext and saves it into the given open file
+// without closing the file. `Seek(0, 0)` is then called on the file so the file pointer
+// is at the beginning of the file unless an error occurs. If the given template path is
+// empty, the default template is used. If any status ranges are given, responses with
+// statuses outside those ranges are removed from the collection. A `level` integer
+// property is added to each "item" and each "response" object within the collection.
+// The level starts at 1 for the outermost item object and increases by 1 for each level
+// of item nesting.
+func generateText(collection map[string]any, openAnsFile *os.File, tmplPath string, statusRanges [][]int) error {
 	filterResponsesByStatus(collection, statusRanges)
 	addLevelProperty(collection)
 
-	collectionName := collection["info"].(map[string]any)["name"].(string)
-	destFile, destName, err := openDestFile(destName, collectionName, confirmReplaceExistingFile)
+	tmplName, tmplStr, err := loadTmpl(tmplPath)
 	if err != nil {
-		return "", err
-	}
-	if destName != "-" { // if destFile is not os.Stdout
-		defer destFile.Close()
+		return err
 	}
 
-	if err = executeTemplate(destFile, collection, tmplName, tmplStr); err != nil {
-		if destName != "-" { // if destFile is not os.Stdout
-			destFile.Close()
-			os.Remove(destName)
-		}
-		return "", err
-	}
-
-	return destName, nil
+	return executeTmpl(collection, openAnsFile, tmplName, tmplStr)
 }
 
 // parseCollection converts a collection from a slice of bytes of JSON to a map.
@@ -72,7 +59,8 @@ func parseCollection(jsonBytes []byte) (map[string]any, error) {
 
 // parseStatusRanges converts a string of status ranges to a slice of slices of
 // integers. The slice may be nil, but any inner slices each have two elements: the
-// start and end of the range. Examples: "200", "200-299", "200-299,400-499", "200-200".
+// start and end of the range. Example inputs: "200", "200-299", "200-299,400-499",
+// "200-200".
 func parseStatusRanges(statusesStr string) ([][]int, error) {
 	if len(statusesStr) == 0 {
 		return nil, nil
@@ -141,7 +129,7 @@ func _filterResponsesByStatus(items []any, statusRanges [][]int) {
 
 // addLevelProperty adds a "level" property within each "item" and each "response"
 // object. The level starts at 1 for the outermost item object and increases by 1 for
-// each level of "item" nesting.
+// each level of item nesting.
 func addLevelProperty(collection map[string]any) {
 	items := collection["item"].([]any)
 	_addLevelProperty(items, 1)
@@ -163,39 +151,21 @@ func _addLevelProperty(items []any, level int) {
 	}
 }
 
-// openDestFile gets the destination file and its name. If the given destination name is
-// "-", the destination file is os.Stdout. If the given destination name is empty, a new
-// file is created with a name based on the collection name and the returned name will
-// be different from the given one. If the given destination name refers to an existing
-// file and confirmation to replace an existing file is not given, an error is returned.
-// Any returned file is open.
-func openDestFile(destName, collectionName string, confirmReplaceExistingFile bool) (*os.File, string, error) {
-	if destName == "-" {
-		return os.Stdout, destName, nil
-	}
-	if len(destName) == 0 {
-		fileName := FormatFileName(collectionName)
-		if len(fileName) == 0 {
-			fileName = "collection"
-		}
-		destName = CreateUniqueFileName(fileName, ".md")
-	} else if FileExists(destName) && !confirmReplaceExistingFile {
-		return nil, "", fmt.Errorf("File %q already exists. Run the command again with the --replace flag to confirm replacing it.", destName)
-	}
-	destFile, err := os.Create(destName)
-	if err != nil {
-		return nil, "", fmt.Errorf("os.Create: %s", err)
-	}
-	return destFile, destName, nil
-}
-
-// executeTemplate uses a template and FuncMap to convert the collection to markdown and
-// saves to the given open destination file. The destination file is not closed.
-func executeTemplate(destFile *os.File, collection map[string]any, tmplName, tmplStr string) error {
+// executeTmpl uses a template and FuncMap to convert the collection to plaintext
+// and saves to the given open destination file without closing it. `Seek(0, 0)` is then
+// called on the file so the file pointer is at the beginning of the file unless an
+// error occurs.
+func executeTmpl(collection map[string]any, openAnsFile *os.File, tmplName, tmplStr string) error {
 	tmpl, err := template.New(tmplName).Funcs(funcMap).Parse(tmplStr)
 	if err != nil {
 		return fmt.Errorf("Template parsing error: %s", err)
 	}
 
-	return tmpl.Execute(destFile, collection)
+	err = tmpl.Execute(openAnsFile, collection)
+	if err != nil {
+		return err
+	}
+
+	openAnsFile.Seek(0, 0)
+	return nil
 }

@@ -42,6 +42,7 @@ You can customize the output by editing the template.
 
 * `pm2md --get-template` creates a new file of the default template as an easier starting point for customization.
 * `pm2md api.json --template=custom.tmpl` reads api.json and formats text using a custom template file named custom.tmpl. The result is saved into a new file with a unique name.
+* `pm2md test api.json custom.tmpl expected.md` tests whether your custom template's output matches your expected output, and gives a helpful error message if it doesn't.
 
 In a template, you can use the functions in the `FuncMap` in [func_map.go](cmd/func_map.go). Sometimes it's helpful to look at the JSON exported from Postman to know what variables are available. pm2md adds a "level" integer property to each Postman item and response (folders, endpoints, and responses). These template docs might also be helpful:
 
