@@ -7,129 +7,11 @@
 	},
 	"item": [
 		{
-			"name": "get all accounts",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"method": "GET",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{base_url}}/v1/account/all",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"v1",
-						"account",
-						"all"
-					]
-				}
-			},
-			"response": [
+			"name": "POST endpoints",
+			"item": [
 				{
-					"name": "valid input",
-					"originalRequest": {
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/v1/account/all",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"v1",
-								"account",
-								"all"
-							]
-						}
-					},
-					"status": "OK",
-					"code": 200,
-					"_postman_previewlanguage": "json",
-					"header": [
-						{
-							"key": "X-Powered-By",
-							"value": "Express"
-						},
-						{
-							"key": "Content-Type",
-							"value": "application/json; charset=utf-8"
-						},
-						{
-							"key": "Content-Length",
-							"value": "302"
-						},
-						{
-							"key": "ETag",
-							"value": "W/\"12e-XowkCqI1BF7/9BFn6O3XcTj8CxE\""
-						},
-						{
-							"key": "Date",
-							"value": "Thu, 31 Aug 2023 16:37:23 GMT"
-						},
-						{
-							"key": "Connection",
-							"value": "keep-alive"
-						},
-						{
-							"key": "Keep-Alive",
-							"value": "timeout=5"
-						}
-					],
-					"cookie": [],
-					"body": "[\n    {\n        \"_id\": \"64de85af99bb7d63123531e8\",\n        \"email\": \"alksdfuie@mail.com\",\n        \"hashedPassword\": \"$2b$10$1Pkuaf10UTOXaY8WctU72em4HDOHiAVLxssXc2iqIEz0BbWEE/g5q\",\n        \"scheduledAppointmentCount\": 0,\n        \"editedAppointmentCount\": 0,\n        \"canceledAppointmentCount\": 0,\n        \"createdAt\": \"2023-08-17T20:40:15.775Z\",\n        \"activeAppointments\": [],\n        \"__v\": 0\n    }\n]"
-				}
-			]
-		},
-		{
-			"name": "create account",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"email\": \"alksdfuie@mail.com\",\r\n    \"password\": \"so8vu3os8srl3jmlsf\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{base_url}}/v1/account/register",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"v1",
-						"account",
-						"register"
-					]
-				}
-			},
-			"response": [
-				{
-					"name": "valid input",
-					"originalRequest": {
+					"name": "create account",
+					"request": {
 						"method": "POST",
 						"header": [],
 						"body": {
@@ -153,74 +35,74 @@
 							]
 						}
 					},
-					"status": "Created",
-					"code": 201,
-					"_postman_previewlanguage": "json",
-					"header": [
+					"response": [
 						{
-							"key": "X-Powered-By",
-							"value": "Express"
-						},
-						{
-							"key": "Content-Type",
-							"value": "application/json; charset=utf-8"
-						},
-						{
-							"key": "Content-Length",
-							"value": "30"
-						},
-						{
-							"key": "ETag",
-							"value": "W/\"1e-7uqMJ/ACJadsP/Q7e5ba5xRV5Fw\""
-						},
-						{
-							"key": "Date",
-							"value": "Sun, 13 Aug 2023 22:52:17 GMT"
-						},
-						{
-							"key": "Connection",
-							"value": "keep-alive"
-						},
-						{
-							"key": "Keep-Alive",
-							"value": "timeout=5"
+							"name": "valid input",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"alksdfuie@mail.com\",\r\n    \"password\": \"so8vu3os8srl3jmlsf\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/account/register",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"v1",
+										"account",
+										"register"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "30"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"1e-7uqMJ/ACJadsP/Q7e5ba5xRV5Fw\""
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 13 Aug 2023 22:52:17 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"email\": \"alksdfuie@mail.com\"\n}"
 						}
-					],
-					"cookie": [],
-					"body": "{\n    \"email\": \"alksdfuie@mail.com\"\n}"
-				}
-			]
-		},
-		{
-			"name": "log in",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"email\": \"alksdfuie@mail.com\",\r\n    \"password\": \"so8vu3os8srl3jmlsf\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{base_url}}/v1/account/login",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"v1",
-						"account",
-						"login"
 					]
-				}
-			},
-			"response": [
+				},
 				{
-					"name": "valid input",
-					"originalRequest": {
+					"name": "log in",
+					"request": {
 						"method": "POST",
 						"header": [],
 						"body": {
@@ -244,41 +126,173 @@
 							]
 						}
 					},
-					"status": "OK",
-					"code": 200,
-					"_postman_previewlanguage": "json",
-					"header": [
+					"response": [
 						{
-							"key": "X-Powered-By",
-							"value": "Express"
-						},
-						{
-							"key": "Content-Type",
-							"value": "application/json; charset=utf-8"
-						},
-						{
-							"key": "Content-Length",
-							"value": "30"
-						},
-						{
-							"key": "ETag",
-							"value": "W/\"1e-7uqMJ/ACJadsP/Q7e5ba5xRV5Fw\""
-						},
-						{
-							"key": "Date",
-							"value": "Sun, 13 Aug 2023 22:59:41 GMT"
-						},
-						{
-							"key": "Connection",
-							"value": "keep-alive"
-						},
-						{
-							"key": "Keep-Alive",
-							"value": "timeout=5"
+							"name": "valid input",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"alksdfuie@mail.com\",\r\n    \"password\": \"so8vu3os8srl3jmlsf\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/account/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"v1",
+										"account",
+										"login"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "30"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"1e-7uqMJ/ACJadsP/Q7e5ba5xRV5Fw\""
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 13 Aug 2023 22:59:41 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"email\": \"alksdfuie@mail.com\"\n}"
 						}
-					],
-					"cookie": [],
-					"body": "{\n    \"email\": \"alksdfuie@mail.com\"\n}"
+					]
+				}
+			]
+		},
+		{
+			"name": "empty folder",
+			"item": []
+		},
+		{
+			"name": "GET endpoints",
+			"item": [
+				{
+					"name": "get all accounts",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/v1/account/all",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"v1",
+								"account",
+								"all"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "valid input",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/account/all",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"v1",
+										"account",
+										"all"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "302"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"12e-XowkCqI1BF7/9BFn6O3XcTj8CxE\""
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 31 Aug 2023 16:37:23 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"_id\": \"64de85af99bb7d63123531e8\",\n        \"email\": \"alksdfuie@mail.com\",\n        \"hashedPassword\": \"$2b$10$1Pkuaf10UTOXaY8WctU72em4HDOHiAVLxssXc2iqIEz0BbWEE/g5q\",\n        \"scheduledAppointmentCount\": 0,\n        \"editedAppointmentCount\": 0,\n        \"canceledAppointmentCount\": 0,\n        \"createdAt\": \"2023-08-17T20:40:15.775Z\",\n        \"activeAppointments\": [],\n        \"__v\": 0\n    }\n]"
+						}
+					]
 				}
 			]
 		},

@@ -1,0 +1,30 @@
+# {{ .info.name }}
+{{- range .item }}
+
+----------------------------------------
+
+## {{ .name }}
+
+{{ .request.method }} `/{{ join .request.url.path "/" }}`
+{{- if .request.body.raw }}
+
+### sample request body
+
+```{{ .request.body.options.raw.language }}
+{{ allowJsonOrPlaintext .request.body.raw }}
+```
+{{- end }}
+{{- range .response }}
+
+### sample response to {{ .name }} (status: {{ .code }} {{ .status }})
+
+```{{ ._postman_previewlanguage }}
+{{- if .body }}
+{{ allowJsonOrPlaintext .body }}
+{{- else }}
+(no response body)
+{{- end }}
+```
+{{- end }}
+{{- end }}
+

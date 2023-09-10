@@ -90,16 +90,16 @@ func TestGenerateText(t *testing.T) {
 }
 
 func TestGenerateTextWithCustomTemplate(t *testing.T) {
-	inputPath := "../samples/calendar-API.postman_collection.json"
+	inputPath := "../samples/minimal-calendar-API.postman_collection.json"
 	customTmplPath := "../samples/custom.tmpl"
-	wantOutputPath := "../samples/calendar-API-v1-from-custom-templ.md"
+	wantOutputPath := "../samples/custom-calendar-API-v1.md"
 	assertGenerateNoDiff(t, inputPath, customTmplPath, wantOutputPath)
 }
 
-func TestGenerateTextWithRecursiveTemplate(t *testing.T) {
-	inputPath := "../samples/calendar-API-with-folders.postman_collection.json"
-	customTmplPath := "../samples/recursive.tmpl"
-	wantOutputPath := "../samples/calendar-API-v1-with-folders.md"
+func TestGenerateTextWithMinimalTemplate(t *testing.T) {
+	inputPath := "../samples/minimal-calendar-API.postman_collection.json"
+	customTmplPath := "minimal.tmpl"
+	wantOutputPath := "../samples/minimal-calendar-API-v1.md"
 	assertGenerateNoDiff(t, inputPath, customTmplPath, wantOutputPath)
 }
 
@@ -216,7 +216,7 @@ func TestFilterResponses(t *testing.T) {
 }
 
 func TestFilterResponsesWithFolders(t *testing.T) {
-	jsonPath := "../samples/calendar-API-with-folders.postman_collection.json"
+	jsonPath := "../samples/calendar-API.postman_collection.json"
 	collection, err := getCollection(t, jsonPath)
 	if err != nil {
 		t.Error(err)
@@ -229,7 +229,7 @@ func TestFilterResponsesWithFolders(t *testing.T) {
 }
 
 func TestAddLevelProperty(t *testing.T) {
-	jsonPath := "../samples/calendar-API-with-folders.postman_collection.json"
+	jsonPath := "../samples/calendar-API.postman_collection.json"
 	collection, err := getCollection(t, jsonPath)
 	if err != nil {
 		t.Error(err)

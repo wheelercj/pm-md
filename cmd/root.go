@@ -26,7 +26,11 @@ import (
 //go:embed default.tmpl
 var defaultTmplStr string
 
+//go:embed minimal.tmpl
+var minimalTmplStr string
+
 const defaultTmplName = "default.tmpl"
+const minimalTmplName = "minimal.tmpl"
 
 const short = "Convert a Postman collection to markdown documentation"
 const jsonHelp = "You can get a JSON file from Postman by exporting a collection as a v2.1.0 collection"
@@ -39,7 +43,8 @@ const example = `  pm2md collection.json
 
 var Statuses string
 var CustomTmplPath string
-var GetTemplate bool
+var GetDefault bool
+var GetMinimal bool
 var ConfirmReplaceExistingFile bool
 
 var rootCmd = &cobra.Command{
@@ -54,7 +59,7 @@ var rootCmd = &cobra.Command{
 
 // argsFunc does some input validation on the command args and flags.
 func argsFunc(cmd *cobra.Command, args []string) error {
-	if len(args) == 0 && GetTemplate {
+	if len(args) == 0 && (GetDefault || GetMinimal) {
 		return nil
 	}
 	if err := cobra.MinimumNArgs(1)(cmd, args); err != nil {
@@ -100,13 +105,21 @@ func runFunc(cmd *cobra.Command, args []string) error {
 // parseInput parses command args and flags, opens the destination file, and returns all
 // of these results.
 func parseInput(cmd *cobra.Command, args []string) (string, *os.File, map[string]any, [][]int, error) {
-	if GetTemplate {
-		fileName := exportDefaultTemplate()
+	if GetDefault {
+		fileName := exportText("default", ".tmpl", defaultTmplStr)
 		fmt.Fprintf(os.Stderr, "Created %q\n", fileName)
 		if len(args) == 0 {
 			os.Exit(0)
 		}
 	}
+	if GetMinimal {
+		fileName := exportText("minimal", ".tmpl", minimalTmplStr)
+		fmt.Fprintf(os.Stderr, "Created %q\n", fileName)
+		if len(args) == 0 {
+			os.Exit(0)
+		}
+	}
+
 	jsonPath := args[0]
 	var destPath string
 	if len(args) == 2 {
@@ -168,11 +181,18 @@ func init() {
 		"Use a custom template for the output",
 	)
 	rootCmd.Flags().BoolVarP(
-		&GetTemplate,
-		"get-template",
-		"g",
+		&GetDefault,
+		"get-default",
+		"d",
 		false,
 		"Creates a file of the default template for customization",
+	)
+	rootCmd.Flags().BoolVarP(
+		&GetMinimal,
+		"get-minimal",
+		"m",
+		false,
+		"Creates a file of a minimal template for customization",
 	)
 	rootCmd.Flags().BoolVar(
 		&ConfirmReplaceExistingFile,

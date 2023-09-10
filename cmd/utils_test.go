@@ -111,17 +111,29 @@ func TestFormatFileName(t *testing.T) {
 	}
 }
 
-func TestExportDefaultTemplate(t *testing.T) {
-	if FileExists("collection.tmpl") {
-		t.Errorf("FileExists(\"collection.tmpl\") = true, want false")
+func TestExportText(t *testing.T) {
+	// This test needs to create default.tmpl but default.tmpl already exists in this
+	// directory, so the current directory needs to temporarily change.
+	err := os.Chdir("..")
+	if err != nil {
+		t.Error(err)
 		return
 	}
-	fileName := exportDefaultTemplate()
-	if fileName != "collection.tmpl" {
-		t.Errorf("exportDefaultTemplate() = %q, want \"collection.tmpl\"", fileName)
+	if FileExists("default.tmpl") {
+		t.Errorf("FileExists(\"default.tmpl\") = true, want false")
+		return
+	}
+	fileName := exportText("default", ".tmpl", defaultTmplStr)
+	if fileName != "default.tmpl" {
+		t.Errorf("exportDefaultTemplate() = %q, want \"default.tmpl\"", fileName)
 	}
 	if !FileExists(fileName) {
 		t.Errorf("FileExists(%q) = false, want true", fileName)
 	}
 	os.Remove(fileName)
+	err = os.Chdir("cmd")
+	if err != nil {
+		t.Error(err)
+		return
+	}
 }

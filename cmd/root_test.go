@@ -60,12 +60,12 @@ func TestArgsFuncWithInvalidArgs(t *testing.T) {
 }
 
 func TestArgsFuncGetTemplate(t *testing.T) {
-	GetTemplate = true
+	GetDefault = true
 	err := argsFunc(nil, nil)
 	if err != nil {
 		t.Errorf("argsFunc(nil, nil) = %q, want nil", err)
 	}
-	GetTemplate = false
+	GetDefault = false
 }
 
 func TestArgsFuncWithCustomTmplPath(t *testing.T) {
@@ -134,7 +134,7 @@ func TestLoadTmplDefault(t *testing.T) {
 	}
 	err = AssertNoDiff(tmplStr, defaultTmplStr, "\r\n")
 	if err != nil {
-		t.Errorf("loadTmpl(\"\") returned error %q, want nil error", err)
+		t.Errorf("AssertNoDiff returned error %q, want nil error", err)
 	}
 }
 
@@ -158,7 +158,7 @@ func TestLoadTmplCustom(t *testing.T) {
 	}
 	err = AssertNoDiff(ansTmplStr, wantTmplStr, "\r\n")
 	if err != nil {
-		t.Errorf("loadTmpl(\"../samples/custom.tmpl\") returned error %q, want nil error", err)
+		t.Errorf("AssertNoDiff returned error %q, want nil error", err)
 	}
 }
 

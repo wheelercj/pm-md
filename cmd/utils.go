@@ -84,23 +84,25 @@ func ScanStdin() ([]byte, error) {
 	return []byte(strings.Join(lines, "\n")), nil
 }
 
-// exportDefaultTemplate creates a new file with a unique name (it will never replace an
-// existing file), saves the default template into it, and returns the new file's name.
-func exportDefaultTemplate() string {
-	name := CreateUniqueFileName("collection", ".tmpl")
-	file, err := os.Create(name)
+// exportText creates a new file with a unique name based on the given base name (no
+// existing file will ever be replaced), saves the given content into it, and returns
+// the new file's name. The given file extension must be empty or be a period followed
+// by one or more characters.
+func exportText(baseName, ext, content string) string {
+	uniqueName := CreateUniqueFileName(baseName, ext)
+	file, err := os.Create(uniqueName)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, fmt.Errorf("os.Create: %s", err))
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 	defer file.Close()
-	_, err = file.Write([]byte(defaultTmplStr))
+	_, err = file.Write([]byte(content))
 	if err != nil {
-		fmt.Fprintln(os.Stderr, fmt.Errorf("file.Write: %s", err))
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 
-	return name
+	return uniqueName
 }
 
 // AssertGenerateNoDiff converts JSON to plaintext and asserts the result is the same as
