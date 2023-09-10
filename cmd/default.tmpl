@@ -1,6 +1,7 @@
 {{- define "table-of-contents" -}}
+{{- /* The links created by formatHeaderLink work in GitHub. */ -}}
 {{- range .item }}
-* {{ formatHeaderLink .name }}
+* {{ formatHeaderLink .name }}{{if .description }} - {{ .description }}{{ end }}
 {{- end -}}
 {{- end -}}
 
@@ -14,16 +15,21 @@
 <h{{ .level }}>
     {{- .name -}}
 </h{{ .level }}>
+{{- if .description }} {{ .description }}{{ end }}
 </summary>
 
 {{- if .item }}
 {{- template "main" .item }}
-{{- else }}
-
+{{- else -}}
 {{- if .request.method }}
 
 {{ .request.method }} `/{{ join .request.url.path "/" }}`
-{{- end }}
+{{- end -}}
+
+{{- if .request.description }}
+
+{{ .request.description }}
+{{- end -}}
 
 {{- if .request.body.raw }}
 
@@ -34,7 +40,7 @@
 ```{{ .request.body.options.raw.language }}
 {{ allowJsonOrPlaintext .request.body.raw }}
 ```
-{{- end }}
+{{- end -}}
 
 {{- range .response }}
 
@@ -53,12 +59,16 @@
 {{- end }}
 ```
 </details>
-{{- end }}
+{{- end -}}
 {{- end }}
 </details>
-{{- end }}
+{{- end -}}
 {{- end -}}
 
 # {{ .info.name }}
+{{- if .info.description }}
+
+{{ .info.description }}
+{{- end }}
 {{ template "table-of-contents" . }}
 {{- template "main" .item }}

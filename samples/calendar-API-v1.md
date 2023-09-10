@@ -1,6 +1,8 @@
 # calendar API
 
-* [POST endpoints](#post-endpoints)
+This is a description for the API
+
+* [POST endpoints](#post-endpoints) - This custom folder happens to have all the POST endpoints.
 * [empty folder](#empty-folder)
 * [GET endpoints](#get-endpoints)
 * [edit account](#edit-account)
@@ -10,7 +12,7 @@
 
 <details open>
 <summary>
-<h1>POST endpoints</h1>
+<h1>POST endpoints</h1> This custom folder happens to have all the POST endpoints.
 </summary>
 
 ----------------------------------------
@@ -21,6 +23,8 @@
 </summary>
 
 POST `/v1/account/register`
+
+Users can create an account with this endpoint.
 
 <h3>sample request body</h3>
 

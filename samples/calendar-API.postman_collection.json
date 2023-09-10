@@ -2,6 +2,7 @@
 	"info": {
 		"_postman_id": "23799766-64ba-4c7c-aaa9-0d880964db54",
 		"name": "calendar API",
+		"description": "This is a description for the API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "23363106"
 	},
@@ -33,7 +34,8 @@
 								"account",
 								"register"
 							]
-						}
+						},
+						"description": "Users can create an account with this endpoint."
 					},
 					"response": [
 						{
@@ -191,7 +193,8 @@
 						}
 					]
 				}
-			]
+			],
+			"description": "This custom folder happens to have all the POST endpoints."
 		},
 		{
 			"name": "empty folder",

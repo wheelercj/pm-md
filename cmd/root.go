@@ -95,7 +95,7 @@ func runFunc(cmd *cobra.Command, args []string) error {
 		statusRanges,
 	)
 	if err != nil {
-		return err
+		fmt.Fprintln(os.Stderr, err)
 	} else if destPath != "-" {
 		fmt.Fprintf(os.Stderr, "Created %q\n", destPath)
 	}

@@ -50,9 +50,13 @@ In a template, you can use the functions in the `FuncMap` in [func_map.go](cmd/f
 * [the template package — Go's standard library](https://pkg.go.dev/text/template)
 * [How To Use Templates in Go — DigitalOcean](https://www.digitalocean.com/community/tutorials/how-to-use-templates-in-go#step-4-writing-a-template)
 
-## Postman tips
+## tips
 
-The result looks best when there is an example saved for each endpoint (after clicking "Send" in Postman, a "Save as Example" button appears).
+Any descriptions and examples you want to add to pm2md's output can usually be added in Postman. pm2md can then take those and automatically put them in the result for you. For example, after clicking "Send" in Postman, a "Save as Example" button appears so you can save a sample request and response. Also, there are many places in Postman to add descriptions to things, including collections, folders, requests, and more.
+
+To add a description to a request, click the documentation button near the top-right corner:
+
+![documentation button](samples/documentation-button.png)
 
 Here's how to export a collection from Postman (choose the v2.1.0 export option):
 
