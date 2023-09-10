@@ -1,3 +1,9 @@
+{{- define "table-of-contents" -}}
+{{- range .item }}
+* {{ formatHeaderLink .name }}
+{{- end -}}
+{{- end -}}
+
 {{- define "main" }}
 {{- range . }}
 
@@ -54,4 +60,5 @@
 {{- end -}}
 
 # {{ .info.name }}
+{{ template "table-of-contents" . }}
 {{- template "main" .item }}

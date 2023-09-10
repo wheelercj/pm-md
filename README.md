@@ -50,30 +50,6 @@ In a template, you can use the functions in the `FuncMap` in [func_map.go](cmd/f
 * [the template package — Go's standard library](https://pkg.go.dev/text/template)
 * [How To Use Templates in Go — DigitalOcean](https://www.digitalocean.com/community/tutorials/how-to-use-templates-in-go#step-4-writing-a-template)
 
-Here's how to add a table of contents with links that work in GitHub:
-
-```
-{{ range .item }}
-* {{ formatHeaderLink .name }}
-{{- end }}
-```
-
-Alternatively, you could hide sections by default and show them when their titles are clicked, like this:
-
-<details>
-<summary>click me</summary>
-POST `/v1/hello`
-</details>
-
-```html
-<details>
-<summary>click me</summary>
-POST `/v1/hello`
-</details>
-```
-
-HTML's `<details>` element has an optional `open` attribute if you want details shown by default (`<details open>`).
-
 ## Postman tips
 
 The result looks best when there is an example saved for each endpoint (after clicking "Send" in Postman, a "Save as Example" button appears).

@@ -1,5 +1,11 @@
 # calendar API
 
+* [POST endpoints](#post-endpoints)
+* [empty folder](#empty-folder)
+* [GET endpoints](#get-endpoints)
+* [edit account](#edit-account)
+* [delete account](#delete-account)
+
 ----------------------------------------
 
 <details open>
