@@ -51,7 +51,7 @@ func parseCollection(jsonBytes []byte) (map[string]any, error) {
 		return nil, err
 	}
 	if collection["info"].(map[string]any)["schema"] != "https://schema.getpostman.com/json/collection/v2.1.0/collection.json" {
-		return nil, fmt.Errorf("Unknown JSON schema. When exporting from Postman, export as Collection v2.1.0")
+		return nil, fmt.Errorf("Unknown JSON schema. When exporting from Postman, export as Collection v2.1")
 	}
 
 	return collection, nil

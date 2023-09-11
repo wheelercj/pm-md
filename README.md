@@ -58,7 +58,7 @@ To add a description to a request, click the documentation button near the top-r
 
 ![documentation button](samples/documentation-button.png)
 
-Here's how to export a collection from Postman (choose the v2.1.0 export option):
+Here's how to export a collection from Postman (choose the v2.1 export option):
 
 ![gif showing how to export from postman](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYzFnb2JicjN6czk3dTJqcjg5Zm1yMjVtOXZ4cGVzd2d6YjFuYm5tdyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/1xp8s0yXApAYtF1c1q/giphy.gif)
 
