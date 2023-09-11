@@ -26,12 +26,12 @@
 ----------------------------------------
 
 <details open>
-<summary>
-<h{{ .level }}>
-    {{- .name -}}
-</h{{ .level }}>
-{{- if .description }} - {{ .description }}{{ end }}
-</summary>
+    <summary>
+        <h{{ .level }}>
+            {{- .name -}}
+        </h{{ .level }}>
+        {{- if .description }} - {{ .description }}{{ end }}
+    </summary>
 
 {{- if .item }}
 {{- template "items" .item }}

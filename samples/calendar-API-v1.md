@@ -11,16 +11,16 @@ This is a description for the API
 ----------------------------------------
 
 <details open>
-<summary>
-<h1>POST endpoints</h1> - This custom folder happens to have all the POST endpoints.
-</summary>
+    <summary>
+        <h1>POST endpoints</h1> - This custom folder happens to have all the POST endpoints.
+    </summary>
 
 ----------------------------------------
 
 <details open>
-<summary>
-<h2>create account</h2>
-</summary>
+    <summary>
+        <h2>create account</h2>
+    </summary>
 
 POST `/v1/account/register`
 
@@ -51,9 +51,9 @@ Users can create an account with this endpoint.
 ----------------------------------------
 
 <details open>
-<summary>
-<h2>log in</h2>
-</summary>
+    <summary>
+        <h2>log in</h2>
+    </summary>
 
 POST `/v1/account/login`
 
@@ -83,24 +83,24 @@ POST `/v1/account/login`
 ----------------------------------------
 
 <details open>
-<summary>
-<h1>empty folder</h1>
-</summary>
+    <summary>
+        <h1>empty folder</h1>
+    </summary>
 </details>
 
 ----------------------------------------
 
 <details open>
-<summary>
-<h1>GET endpoints</h1>
-</summary>
+    <summary>
+        <h1>GET endpoints</h1>
+    </summary>
 
 ----------------------------------------
 
 <details open>
-<summary>
-<h2>get all accounts</h2>
-</summary>
+    <summary>
+        <h2>get all accounts</h2>
+    </summary>
 
 GET `/v1/account/all`
 
@@ -131,9 +131,9 @@ GET `/v1/account/all`
 ----------------------------------------
 
 <details open>
-<summary>
-<h1>edit account</h1>
-</summary>
+    <summary>
+        <h1>edit account</h1>
+    </summary>
 
 PUT `/v1/account`
 
@@ -162,9 +162,9 @@ Update successful
 ----------------------------------------
 
 <details open>
-<summary>
-<h1>delete account</h1>
-</summary>
+    <summary>
+        <h1>delete account</h1>
+    </summary>
 
 DELETE `/v1/account`
 
