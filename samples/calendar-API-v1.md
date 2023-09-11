@@ -12,7 +12,7 @@ This is a description for the API
 
 <details open>
 <summary>
-<h1>POST endpoints</h1> This custom folder happens to have all the POST endpoints.
+<h1>POST endpoints</h1> - This custom folder happens to have all the POST endpoints.
 </summary>
 
 ----------------------------------------
