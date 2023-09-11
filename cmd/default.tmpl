@@ -1,3 +1,17 @@
+{{- /* template docs: https://pkg.go.dev/text/template */ -}}
+
+
+{{- define "main" -}}
+# {{ .info.name }}
+{{- if .info.description }}
+
+{{ .info.description }}
+{{- end }}
+{{ template "table-of-contents" . }}
+{{- template "items" .item }}
+{{ end -}}
+
+
 {{- define "table-of-contents" -}}
 {{- /* The links created by formatHeaderLink work in GitHub. */ -}}
 {{- range .item }}
@@ -5,7 +19,8 @@
 {{- end -}}
 {{- end -}}
 
-{{- define "main" }}
+
+{{- define "items" }}
 {{- range . }}
 
 ----------------------------------------
@@ -19,8 +34,17 @@
 </summary>
 
 {{- if .item }}
-{{- template "main" .item }}
+{{- template "items" .item }}
 {{- else -}}
+{{- template "request" . -}}
+{{- template "responses" . -}}
+{{- end }}
+</details>
+{{- end -}}
+{{- end -}}
+
+
+{{- define "request" -}}
 {{- if .request.method }}
 
 {{ .request.method }} `/{{ join .request.url.path "/" }}`
@@ -41,13 +65,16 @@
 {{ allowJsonOrPlaintext .request.body.raw }}
 ```
 {{- end -}}
+{{- end -}}
 
+
+{{- define "responses" -}}
 {{- range .response }}
 
 <details>
     <summary>
         <h{{ add .level 1 }}>{{- "" -}}
-            sample response to {{ .name }} (status: {{ .code }} {{ .status }}){{- "" -}}
+            sample response{{ if .name }} to {{ .name }}{{ end }} (status: {{ .code }} {{ .status }}){{- "" -}}
         </h{{ add .level 1 }}>
     </summary>
 
@@ -60,15 +87,7 @@
 ```
 </details>
 {{- end -}}
-{{- end }}
-</details>
-{{- end -}}
 {{- end -}}
 
-# {{ .info.name }}
-{{- if .info.description }}
 
-{{ .info.description }}
-{{- end }}
-{{ template "table-of-contents" . }}
-{{- template "main" .item }}
+{{- template "main" . -}}
