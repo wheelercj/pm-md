@@ -2,88 +2,88 @@
 
 
 {{- define "main" -}}
-# {{ .info.name }}
-{{- if .info.description }}
+# {{.info.name}}
+{{- if .info.description}}
 
-{{ .info.description }}
-{{- end }}
-{{ template "table-of-contents" . }}
-{{- template "items" .item }}
-{{ end -}}
+{{.info.description}}
+{{- end}}
+{{template "table-of-contents" .}}
+{{- template "items" .item}}
+{{end -}}
 
 
 {{- define "table-of-contents" -}}
 {{- /* The links created by formatHeaderLink work in GitHub. */ -}}
-{{- range .item }}
-* {{ formatHeaderLink .name }}{{if .description }} - {{ .description }}{{ end }}
+{{- range .item}}
+* {{formatHeaderLink .name}}{{if .description}} - {{.description}}{{end}}
 {{- end -}}
 {{- end -}}
 
 
-{{- define "items" }}
-{{- range . }}
+{{- define "items"}}
+{{- range .}}
 
 ----------------------------------------
 
 <details open>
     <summary>
-        <h{{ .level }}>
+        <h{{.level}}>
             {{- .name -}}
-        </h{{ .level }}>
-        {{- if .description }} - {{ .description }}{{ end }}
+        </h{{.level}}>
+        {{- if .description}} - {{.description}}{{end}}
     </summary>
 
-{{- if .item }}
-{{- template "items" .item }}
+{{- if .item}}
+{{- template "items" .item}}
 {{- else -}}
 {{- template "request" . -}}
 {{- template "responses" . -}}
-{{- end }}
+{{- end}}
 </details>
 {{- end -}}
 {{- end -}}
 
 
 {{- define "request" -}}
-{{- if .request.method }}
+{{- if .request.method}}
 
-{{ .request.method }} `/{{ join .request.url.path "/" }}`
+{{.request.method}} `/{{join .request.url.path "/"}}`
 {{- end -}}
 
-{{- if .request.description }}
+{{- if .request.description}}
 
-{{ .request.description }}
+{{.request.description}}
 {{- end -}}
 
-{{- if .request.body.raw }}
+{{- if .request.body.raw}}
 
-<h{{ add .level 1 }}>
+<h{{add .level 1}}>
     {{- "sample request body" -}}
-</h{{ add .level 1 }}>
+</h{{add .level 1}}>
 
-```{{ .request.body.options.raw.language }}
-{{ allowJsonOrPlaintext .request.body.raw }}
+```{{.request.body.options.raw.language}}
+{{allowJsonOrPlaintext .request.body.raw}}
 ```
 {{- end -}}
 {{- end -}}
 
 
 {{- define "responses" -}}
-{{- range .response }}
+{{- range .response}}
 
 <details>
     <summary>
-        <h{{ add .level 1 }}>{{- "" -}}
-            sample response{{ if .name }} to {{ .name }}{{ end }} (status: {{ .code }} {{ .status }}){{- "" -}}
-        </h{{ add .level 1 }}>
+        <h{{add .level 1}}>{{- "" -}}
+            sample response{{if .name}} to {{.name}}{{end}} (status: {{.code}} {{.status}}){{- "" -}}
+        </h{{add .level 1}}>
     </summary>
 
-```{{ ._postman_previewlanguage }}
-{{- if .body }}
-{{ allowJsonOrPlaintext .body }}
-{{- else }}
+```{{._postman_previewlanguage}}
+{{- if .body}}
+{{allowJsonOrPlaintext .body}}
+{{- else}}
 (no response body)
-{{- end }}
+{{- end}}
 ```
 </details>
 {{- end -}}
