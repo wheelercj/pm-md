@@ -33,7 +33,7 @@ var testCmd = &cobra.Command{
 // testArgsFunc does some input validation on the `test` subcommand's args and flags.
 func testArgsFunc(cmd *cobra.Command, args []string) error {
 	if len(CustomTmplPath) > 0 {
-		return fmt.Errorf("With the test subcommand, choose a custom template without using the flag")
+		return fmt.Errorf("with the test subcommand, choose a custom template without using the flag")
 	}
 	if err := cobra.ExactArgs(3)(cmd, args); err != nil {
 		return err
@@ -63,7 +63,7 @@ func testRunFunc(cmd *cobra.Command, args []string) error {
 	if err == nil {
 		fmt.Fprintf(os.Stderr, "Perfect match!")
 	} else {
-		fmt.Fprintf(os.Stderr, fmt.Sprint(err))
+		fmt.Fprint(os.Stderr, fmt.Sprint(err))
 	}
 
 	return nil

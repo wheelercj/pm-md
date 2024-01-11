@@ -51,7 +51,7 @@ func parseCollection(jsonBytes []byte) (map[string]any, error) {
 		return nil, err
 	}
 	if collection["info"].(map[string]any)["schema"] != "https://schema.getpostman.com/json/collection/v2.1.0/collection.json" {
-		return nil, fmt.Errorf("Unknown JSON schema. When exporting from Postman, export as Collection v2.1")
+		return nil, fmt.Errorf("unknown JSON schema. When exporting from Postman, export as Collection v2.1")
 	}
 
 	return collection, nil
@@ -70,17 +70,17 @@ func parseStatusRanges(statusesStr string) ([][]int, error) {
 	for i, statusRangeStr := range statusRangeStrs {
 		startAndEnd := strings.Split(statusRangeStr, "-")
 		if len(startAndEnd) > 2 {
-			return nil, fmt.Errorf("Invalid status format. There should be zero or one dashes in %s", statusRangeStr)
+			return nil, fmt.Errorf("invalid status format. There should be zero or one dashes in %s", statusRangeStr)
 		}
 		start, err := strconv.Atoi(startAndEnd[0])
 		if err != nil {
-			return nil, fmt.Errorf("Invalid status range format. Expected an integer, got %q", startAndEnd[0])
+			return nil, fmt.Errorf("invalid status range format. Expected an integer, got %q", startAndEnd[0])
 		}
 		end := start
 		if len(startAndEnd) > 1 {
 			end, err = strconv.Atoi(startAndEnd[1])
 			if err != nil {
-				return nil, fmt.Errorf("Invalid status range format. Expected an integer, got %q", startAndEnd[1])
+				return nil, fmt.Errorf("invalid status range format. Expected an integer, got %q", startAndEnd[1])
 			}
 		}
 		statusRanges[i] = make([]int, 2)
@@ -94,7 +94,7 @@ func parseStatusRanges(statusesStr string) ([][]int, error) {
 // filterResponsesByStatus removes all sample responses with status codes outside the
 // given range(s). If no status ranges are given, the collection remains unchanged.
 func filterResponsesByStatus(collection map[string]any, statusRanges [][]int) {
-	if statusRanges == nil || len(statusRanges) == 0 {
+	if len(statusRanges) == 0 {
 		return
 	}
 	items := collection["item"].([]any)
@@ -158,7 +158,7 @@ func _addLevelProperty(items []any, level int) {
 func executeTmpl(collection map[string]any, openAnsFile *os.File, tmplName, tmplStr string) error {
 	tmpl, err := template.New(tmplName).Funcs(funcMap).Parse(tmplStr)
 	if err != nil {
-		return fmt.Errorf("Template parsing error: %s", err)
+		return fmt.Errorf("template parsing error: %s", err)
 	}
 
 	err = tmpl.Execute(openAnsFile, collection)

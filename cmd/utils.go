@@ -167,23 +167,23 @@ func AssertNoDiff(ans, want, linesep string) error {
 	for i := 0; i < len(ansSlice); i++ {
 		if i >= len(wantSlice) {
 			return fmt.Errorf(
-				"Actual output longer than expected (want %d lines, got %d).\nContinues with\n  %q",
+				"actual output longer than expected (want %d lines, got %d).\nContinues with\n  %q",
 				len(wantSlice), len(ansSlice), ansSlice[i],
 			)
 		}
 		if ansSlice[i] != wantSlice[i] {
 			return fmt.Errorf(
-				"Difference on line %d\nwant:\n  %q\ngot:\n  %q",
+				"difference on line %d\nwant:\n  %q\ngot:\n  %q",
 				i+1, wantSlice[i], ansSlice[i],
 			)
 		}
 	}
 	if len(ansSlice) < len(wantSlice) {
 		return fmt.Errorf(
-			"Actual output shorter than expected (want %d lines, got %d).\nShould continue with\n  %q",
+			"actual output shorter than expected (want %d lines, got %d).\nShould continue with\n  %q",
 			len(wantSlice), len(ansSlice), wantSlice[len(ansSlice)],
 		)
 	}
 
-	return fmt.Errorf("The actual and expected strings don't match for an unknown reason")
+	return fmt.Errorf("the actual and expected strings don't match for an unknown reason")
 }

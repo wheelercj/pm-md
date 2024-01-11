@@ -30,7 +30,7 @@ var defaultTmplStr string
 var minimalTmplStr string
 
 const defaultTmplName = "default.tmpl"
-const minimalTmplName = "minimal.tmpl"
+// const minimalTmplName = "minimal.tmpl"
 
 const short = "Convert a Postman collection to markdown documentation"
 const jsonHelp = "You can get a JSON file from Postman by exporting a collection as a v2.1 collection"
@@ -220,7 +220,7 @@ func openDestFile(destPath, collectionName string, confirmReplaceExistingFile bo
 		}
 		destPath = CreateUniqueFileName(fileName, ".md")
 	} else if FileExists(destPath) && !confirmReplaceExistingFile {
-		return nil, "", fmt.Errorf("File %q already exists. Run the command again with the --replace flag to confirm replacing it.", destPath)
+		return nil, "", fmt.Errorf("file %q already exists. Run the command again with the --replace flag to confirm replacing it", destPath)
 	}
 	destFile, err := os.Create(destPath)
 	if err != nil {
