@@ -69,5 +69,6 @@ Here's how to export a collection from Postman (choose the v2.1 export option):
 * [the embed package — Go's standard library](https://pkg.go.dev/embed)
 * [spf13/cobra](https://github.com/spf13/cobra)
 * [GoReleaser](https://goreleaser.com/)
+* [GoReleaser Action](https://github.com/marketplace/actions/goreleaser-action)
 * [how to create a custom terminal command](https://wheelercj.github.io/notes/pages/20220320181252.html)
 * [Command Line Interface Guidelines](https://clig.dev/) by Prasad et al.
